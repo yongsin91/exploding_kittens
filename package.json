@@ -1,0 +1,21 @@
+{
+  "name": "exploding_kittens",
+  "version": "1.0.0",
+  "description": "A single-player vs AI and local hot-seat multiplayer implementation of the card game Exploding Kittens, built with vanilla HTML, CSS, and JavaScript.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test:unit": "node test/run-test.js",
+    "test:e2e": "npx playwright test",
+    "test:e2e:headed": "npx playwright test --headed",
+    "test:e2e:report": "npx playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}
