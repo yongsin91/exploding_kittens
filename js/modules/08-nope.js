@@ -328,7 +328,7 @@
             });
 
             // Set phase back to play
-            window.TurnEngine.setTurnPhase('play');
+            window.TurnEngine.setTurnPhase('action');
 
             let result;
 

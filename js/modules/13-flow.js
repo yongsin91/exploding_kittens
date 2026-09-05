@@ -88,7 +88,7 @@
             drawPile: [],
             discardPile: [],
             gamePhase: 'active',
-            turnPhase: 'draw',
+            turnPhase: 'action',
             cardsPlayed: [],
             attackTurnsRemaining: 0,
             pendingAttackForNext: 0,
