@@ -409,7 +409,7 @@
         const descriptions = {
             'attack': 'Pass your turn to the next player. They take 2 turns.',
             'skip': 'End your turn without drawing a card.',
-            'favor': 'Another player must give you one random card from their hand.',
+            'favor': 'Force any player to give you 1 card. They choose which card to give.',
             'shuffle': 'Shuffle the deck.',
             'see_the_future': 'Peek at the top 3 cards of the deck.',
             'defuse': 'When you draw an Exploding Kitten, you can play this to put it back.',
