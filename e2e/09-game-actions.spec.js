@@ -973,7 +973,6 @@ test.describe('Player Elimination', () => {
           if (!p.isHuman) p.isAlive = false;
         });
         state.gamePhase = 'game-over';
-        state.gameStatus = 'completed';
       });
       window.UIRenderer.forceRender();
     });

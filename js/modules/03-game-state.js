@@ -36,7 +36,6 @@
         return {
             // Game metadata
             gamePhase: window.GAME_CONFIG.PHASES.SETUP,
-            gameStatus: 'waiting', // waiting, active, completed
             
             // Players
             players: [], // Array of player objects (populated by Module 4)
@@ -319,7 +318,6 @@
     function getStateSummary() {
         return {
             gamePhase: gameState.gamePhase,
-            gameStatus: gameState.gameStatus,
             playerCount: gameState.players.length,
             currentPlayer: gameState.currentPlayerIndex,
             drawPileSize: gameState.drawPile.length,

@@ -56,7 +56,6 @@ test.describe('Win / Game Over', () => {
           if (!p.isHuman) p.isAlive = false;
         });
         state.gamePhase = 'game-over';
-        state.gameStatus = 'completed';
       });
       window.UIRenderer.forceRender();
     });
@@ -81,7 +80,6 @@ test.describe('Win / Game Over', () => {
       window.GameState.mutate(function(state) {
         state.players.forEach(p => { p.isAlive = false; });
         state.gamePhase = 'game-over';
-        state.gameStatus = 'completed';
       });
       window.UIRenderer.forceRender();
     });
@@ -100,7 +98,6 @@ test.describe('Win / Game Over', () => {
       window.GameState.mutate(function(state) {
         state.players.forEach(p => { if (!p.isHuman) p.isAlive = false; });
         state.gamePhase = 'game-over';
-        state.gameStatus = 'completed';
       });
       window.UIRenderer.forceRender();
     });
@@ -128,7 +125,6 @@ test.describe('Win / Game Over', () => {
       window.GameState.mutate(function(state) {
         state.players.forEach(p => { if (!p.isHuman) p.isAlive = false; });
         state.gamePhase = 'game-over';
-        state.gameStatus = 'completed';
       });
       window.UIRenderer.forceRender();
     });
@@ -175,7 +171,6 @@ test.describe('Win / Game Over', () => {
       window.GameState.mutate(function(state) {
         state.players.forEach(p => { if (!p.isHuman) p.isAlive = false; });
         state.gamePhase = 'game-over';
-        state.gameStatus = 'completed';
       });
       window.UIRenderer.forceRender();
     });
