@@ -268,6 +268,29 @@
                 window.Combo.removeComboCards(playerId, decision.comboCards);
                 var result = window.Combo.resolveCombo(comboInfo, playerId, decision.targetId, decision.namedCard);
                 console.log('[GameFlow] AI combo result:', result);
+
+                if (result.requiresNopeResolution && window.Nope) {
+                    // Open nope window for human to respond
+                    window.Nope.openNopeWindow({
+                        type: 'combo',
+                        cardType: comboInfo.comboType,
+                        comboInfo: comboInfo,
+                        playerId: playerId,
+                        targetId: decision.targetId,
+                        description: player.name + ' plays ' + comboInfo.comboType,
+                        resolver: function() {
+                            // Effect proceeds if not noped
+                            window.UIRenderer.forceRender();
+                        },
+                        onComplete: function() {
+                            // Always proceed to draw after nope resolves
+                            setTimeout(function() {
+                                executeAIDraw(playerId);
+                            }, 1000);
+                        }
+                    });
+                    return; // Wait for nope resolution
+                }
             }
         } else {
             // Play single card
@@ -281,19 +304,63 @@
                 var effectResult = window.CardEffects.resolveCardEffect(decision.cardType, playerId, decision.targetId);
                 console.log('[GameFlow] AI card effect:', effectResult);
 
-                // Handle nope for AI plays
-                if (effectResult.requiresNopeResolution) {
-                    // Check if any human players want to nope
-                    // For now, proceed with effect
-                    handleEffectUI(effectResult, playerId);
+                if (effectResult.requiresNopeResolution && window.Nope) {
+                    // Open nope window for human to respond to AI's card
+                    window.Nope.openNopeWindow({
+                        type: 'play-card',
+                        cardType: card.type,
+                        playerId: playerId,
+                        targetId: decision.targetId,
+                        description: player.name + ' plays ' + (card.name || card.type),
+                        resolver: function() {
+                            // Effect proceeds if not noped
+                            handleEffectUI(effectResult, playerId);
+
+                            // Skip card ends turn (no draw needed)
+                            if (card.type === 'skip') {
+                                if (window.GameFlow && typeof window.GameFlow.handleTurnEnd === 'function') {
+                                    window.GameFlow.handleTurnEnd();
+                                }
+                            }
+
+                            // Attack card ends turn (next player gets attack turns)
+                            if (card.type === 'attack') {
+                                if (window.GameFlow && typeof window.GameFlow.handleTurnEnd === 'function') {
+                                    window.GameFlow.handleTurnEnd();
+                                }
+                            }
+                        },
+                        onComplete: function(nopeResult) {
+                            // If action was noped, effect didn't fire
+                            // If not noped, resolver already handled the effect
+                            // Either way, check if turn ended (skip/attack) or need to draw
+                            var currentState = window.GameState.getState();
+                            if (currentState.turnPhase !== 'end' && currentState.gamePhase === 'active' && !nopeResult.cancelled) {
+                                // For non-turn-ending cards that were NOT noped, proceed to draw
+                                if (card.type !== 'skip' && card.type !== 'attack') {
+                                    setTimeout(function() {
+                                        executeAIDraw(playerId);
+                                    }, 1000);
+                                }
+                            } else if (nopeResult.cancelled) {
+                                // Card was noped — AI should proceed to draw
+                                setTimeout(function() {
+                                    if (window.GameState.getState().gamePhase === 'active') {
+                                        executeAIDraw(playerId);
+                                    }
+                                }, 1000);
+                            }
+                        }
+                    });
+                    return; // Wait for nope resolution
                 } else {
+                    // Not nopeable — execute effect directly
                     handleEffectUI(effectResult, playerId);
                 }
             }
         }
 
-        // After playing, AI can play more or draw
-        // For simplicity, AI draws after one play
+        // After playing (non-nopeable or no nope window), AI draws
         setTimeout(function() {
             executeAIDraw(playerId);
         }, 1000);

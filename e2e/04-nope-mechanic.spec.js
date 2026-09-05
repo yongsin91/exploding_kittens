@@ -168,18 +168,24 @@ test.describe('Nope Mechanic', () => {
 
       // Wait for nope to auto-resolve (AI check ~1.5s + auto-close)
       const nopeModal = page.locator('#nope-modal');
-      for (let i = 0; i < 15; i++) {
+      for (let i = 0; i < 20; i++) {
         await page.waitForTimeout(300);
         const isActive = await nopeModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
         if (!isActive) break;
       }
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(2000);
 
       // After nope resolution, game should still be functional
       const gameScreen = page.locator('#game-screen');
       await expect(gameScreen).toHaveClass(/screen--active/);
 
       // No modals should be stuck open (except possibly during AI turn)
+      // Check a few times to handle timing
+      for (let i = 0; i < 5; i++) {
+        const modalActive = await nopeModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
+        if (!modalActive) break;
+        await page.waitForTimeout(500);
+      }
       await expect(nopeModal).not.toHaveClass(/modal--active/);
     }
   });
