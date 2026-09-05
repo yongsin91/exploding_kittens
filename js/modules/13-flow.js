@@ -87,8 +87,7 @@
             currentPlayerIndex: firstPlayerIndex,
             drawPile: [],
             discardPile: [],
-            gamePhase: 'play',
-            gameStatus: 'active',
+            gamePhase: 'active',
             turnPhase: 'draw',
             cardsPlayed: [],
             isAttackActive: false,
@@ -383,7 +382,6 @@
     function endGame(winner) {
         window.GameState.setState({
             gamePhase: 'game-over',
-            gameStatus: 'completed',
             activeModal: null
         });
 

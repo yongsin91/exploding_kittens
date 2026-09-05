@@ -35,7 +35,7 @@ Task 17 (integration) — depends on all
 
 | Task | Branch | Status | Commit | Notes |
 |------|--------|--------|--------|-------|
-| 1 | task-1-state-mgmt | PENDING | - | Foundational |
+| 1 | task-1-state-mgmt | ✅ DONE | 24b67fa | Foundational, merged to main |
 | 2 | task-2-gamephase | PENDING | - | |
 | 3 | task-3-shuffle | PENDING | - | |
 | 4 | task-4-attack | PENDING | - | |
@@ -45,8 +45,8 @@ Task 17 (integration) — depends on all
 | 8 | task-8-see-future | PENDING | - | |
 | 9 | task-9-ai-nope | PENDING | - | |
 | 10 | task-10-combo-cancel | PENDING | - | |
-| 11 | task-11-first-player | PENDING | - | |
-| 12 | task-12-favor-desc | PENDING | - | |
+| 11 | task-11-first-player | ✅ DONE | d6941ea | Merged to main |
+| 12 | task-12-favor-desc | ✅ DONE | 3daa5e0 | Merged to main |
 | 13 | task-13-nope-autoclose | PENDING | - | |
 | 14 | task-14-turn-phase | PENDING | - | |
 | 15 | task-15-ai-multicard | PENDING | - | |

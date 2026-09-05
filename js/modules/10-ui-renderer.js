@@ -203,16 +203,14 @@
         if (!state) return;
 
         // Game over phase
-        if (state.gamePhase === 'game-over' || state.gameStatus === 'completed') {
+        if (state.gamePhase === 'game-over') {
             renderGameOver(state);
             return;
         }
 
         // Only render game screen if active
-        if (state.gamePhase === 'play' || state.gamePhase === 'setup') {
-            if (state.gameStatus === 'active') {
-                renderGameScreen(state);
-            }
+        if (state.gamePhase === 'active' || state.gamePhase === 'setup') {
+            renderGameScreen(state);
         }
 
         // Handle modals (driven by activeModal)

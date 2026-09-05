@@ -267,8 +267,7 @@
         // Phase names
         PHASES: {
             SETUP: 'setup',
-            PLAY: 'play',
-            DRAW: 'draw',
+            ACTIVE: 'active',
             NOPE_WINDOW: 'nope-window',
             DEFUSE_PLACEMENT: 'defuse-placement',
             PEEK: 'peek',
