@@ -13,17 +13,31 @@ exploding-kittens/
 │   └── modules/
 │       ├── 01-constants.js     # Card definitions and game config
 │       ├── 02-deck.js          # Deck creation and shuffle logic
-│       ├── 03-game-state.js    # Game state manager (observer pattern)
+│       ├── 03-game-state.js    # Game state manager (observer pattern + mutate)
 │       ├── 04-player.js        # Player management and hand logic
 │       ├── 05-turn-engine.js   # Turn flow and phase management
 │       ├── 06-card-effects.js  # Individual card effect resolution
 │       ├── 07-combo.js         # Combo detection and resolution
-│       ├── 08-nope.js          # Nope card counter-play system
+│       ├── 08-nope.js          # Nope card counter-play system (with timeout fallback)
 │       ├── 09-ai.js            # AI opponent decision-making
 │       ├── 10-ui-renderer.js   # UI rendering and updates
 │       ├── 11-hotseat.js       # Hot-seat multiplayer mode
 │       ├── 12-events.js        # Input event handling
-│       └── 13-flow.js          # Game lifecycle controller
+│       └── 13-flow.js          # Game lifecycle controller (AI multi-card play)
+├── e2e/                        # Playwright E2E tests (148 tests)
+│   ├── helpers.js              # Shared test helpers
+│   ├── 00-smoke.spec.js        # Basic page load test
+│   ├── 01-setup-screen.spec.js # Setup screen tests
+│   ├── 02-game-screen-initial.spec.js # Initial game state tests
+│   ├── 03-gameplay-interactions.spec.js # Gameplay interaction tests
+│   ├── 04-nope-mechanic.spec.js # Nope mechanic tests
+│   ├── 05-ai-turn-flow.spec.js # AI turn flow tests
+│   ├── 06-hotseat-mode.spec.js # Hot-seat mode tests
+│   ├── 07-win-gameover.spec.js # Win/game over tests
+│   ├── 08-multiplayer-edge-cases.spec.js # Multiplayer edge cases
+│   ├── 09-game-actions.spec.js # Card action tests
+│   └── 10-corrected-mechanics.spec.js # Corrected mechanics tests
+├── plan/                       # Implementation plan and progress tracking
 └── README.md                   # This file
 ```
 
@@ -58,6 +72,26 @@ exploding-kittens/
 - Event delegation for efficient input handling
 - Centralized configuration management
 - Comprehensive logging and debugging support
+- Live state management with `mutate()` pattern for atomic updates
+
+## Corrected Game Mechanics (Phase 2)
+
+✅ **State Management** — `getState()` returns live object; `mutate(fn)` for atomic updates
+✅ **Unified Game Phase** — Single `gamePhase` field: `'setup' | 'active' | 'game-over'`
+✅ **Shuffle Card** — Actually shuffles the draw pile (was a no-op)
+✅ **Attack Stacking** — Passes remaining turns + 2 to next player per official rules
+✅ **Skip Under Attack** — Ends one attack turn, remaining turns still owed
+✅ **Five Different Nopeable** — All combos including Five Different can be noped
+✅ **Defuse Flow** — EK held in modalData, never added to hand
+✅ **See the Future** — Well-documented card ordering (top first)
+✅ **AI Nope Integration** — Human can nope AI card plays via nope modal
+✅ **Combo Cancel** — Properly clears selection state on modal close
+✅ **First Player** — Human always goes first in AI mode (deterministic)
+✅ **Favor Description** — Target chooses card, not random
+✅ **Nope Auto-Close** — Hard timeout fallback (5 seconds)
+✅ **Turn Phase** — Simplified to `'action'` + transient phases
+✅ **AI Multi-Card Play** — AI can play up to 3 cards per turn
+✅ **E2E Test Coverage** — 148 tests covering all corrected mechanics
 
 ## Game Rules (Implementation Target)
 
@@ -78,9 +112,11 @@ exploding-kittens/
 - **Five Different** — 5 different cat cards → pick from discard pile
 
 ### Special Rules
-- **Nope** — Cancel any action (except Exploding Kitten/Defuse)
-- **Attack** — End turn without drawing, next player takes 2 turns
-- **Skip** — End turn without drawing (counters 1 Attack turn)
+- **Nope** — Cancel any action (except Exploding Kitten/Defuse). All combos are nopeable.
+- **Attack** — End turn without drawing. Next player takes 2 turns. If attacked player plays Attack, next player takes remaining + 2 turns.
+- **Skip** — End turn without drawing. Under Attack, ends one turn (remaining turns still owed).
+- **Shuffle** — Shuffles the draw pile.
+- **Favor** — Force any player to give you 1 card (they choose which).
 
 ## Getting Started
 
