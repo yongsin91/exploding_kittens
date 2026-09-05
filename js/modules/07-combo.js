@@ -395,25 +395,32 @@
      * @returns {Object} Result
      */
     function pickFromDiscard(playerId, cardInstanceId) {
-        const state = window.GameState.getState();
         const player = window.Player.getPlayerById(playerId);
 
         if (!player) {
             return { success: false, error: 'Player not found' };
         }
 
-        // Find and remove card from discard
-        const cardIndex = state.discardPile.findIndex(c => c.instanceId === cardInstanceId);
-        
-        if (cardIndex === -1) {
+        let pickedCard = null;
+
+        window.GameState.mutate(function(state) {
+            // Find and remove card from discard
+            const cardIndex = state.discardPile.findIndex(c => c.instanceId === cardInstanceId);
+            
+            if (cardIndex === -1) {
+                return;
+            }
+
+            pickedCard = state.discardPile.splice(cardIndex, 1)[0];
+        });
+
+        if (!pickedCard) {
             return { success: false, error: 'Card not found in discard pile' };
         }
 
-        const pickedCard = state.discardPile.splice(cardIndex, 1)[0];
-
         // Add to player's hand
         window.Player.addCardToHand(playerId, pickedCard);
-        window.GameState.setState({ discardPile: state.discardPile, activeModal: null });
+        window.GameState.setState({ activeModal: null });
 
         window.GameState.logAction({
             type: 'CARD_PICKED_FROM_DISCARD',
@@ -458,9 +465,9 @@
         });
 
         if (removedCards.length > 0) {
-            const state = window.GameState.getState();
-            state.discardPile.push(...removedCards);
-            window.GameState.setState({ discardPile: state.discardPile });
+            window.GameState.mutate(function(state) {
+                state.discardPile.push(...removedCards);
+            });
         }
 
         return allRemoved;

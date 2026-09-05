@@ -50,14 +50,15 @@ test.describe('Win / Game Over', () => {
 
     // Trigger game over by killing all but one player via game state
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      // Kill all AI players (make human the winner)
-      state.players.forEach(p => {
-        if (!p.isHuman) p.isAlive = false;
+      window.GameState.mutate(function(state) {
+        // Kill all AI players (make human the winner)
+        state.players.forEach(p => {
+          if (!p.isHuman) p.isAlive = false;
+        });
+        state.gamePhase = 'game-over';
+        state.gameStatus = 'completed';
       });
-      state.gamePhase = 'game-over';
-      state.gameStatus = 'completed';
-      window.GameState.setState(state);
+      window.UIRenderer.forceRender();
     });
 
     // Game over screen should be visible
@@ -77,11 +78,12 @@ test.describe('Win / Game Over', () => {
 
     // Kill all players (no winner)
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      state.players.forEach(p => { p.isAlive = false; });
-      state.gamePhase = 'game-over';
-      state.gameStatus = 'completed';
-      window.GameState.setState(state);
+      window.GameState.mutate(function(state) {
+        state.players.forEach(p => { p.isAlive = false; });
+        state.gamePhase = 'game-over';
+        state.gameStatus = 'completed';
+      });
+      window.UIRenderer.forceRender();
     });
 
     await expect(page.locator('#game-over-screen')).toHaveClass(/screen--active/, { timeout: 5000 });
@@ -95,11 +97,12 @@ test.describe('Win / Game Over', () => {
 
     // Trigger game over
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      state.players.forEach(p => { if (!p.isHuman) p.isAlive = false; });
-      state.gamePhase = 'game-over';
-      state.gameStatus = 'completed';
-      window.GameState.setState(state);
+      window.GameState.mutate(function(state) {
+        state.players.forEach(p => { if (!p.isHuman) p.isAlive = false; });
+        state.gamePhase = 'game-over';
+        state.gameStatus = 'completed';
+      });
+      window.UIRenderer.forceRender();
     });
 
     await expect(page.locator('#game-over-screen')).toHaveClass(/screen--active/, { timeout: 5000 });
@@ -122,11 +125,12 @@ test.describe('Win / Game Over', () => {
 
     // Trigger game over
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      state.players.forEach(p => { if (!p.isHuman) p.isAlive = false; });
-      state.gamePhase = 'game-over';
-      state.gameStatus = 'completed';
-      window.GameState.setState(state);
+      window.GameState.mutate(function(state) {
+        state.players.forEach(p => { if (!p.isHuman) p.isAlive = false; });
+        state.gamePhase = 'game-over';
+        state.gameStatus = 'completed';
+      });
+      window.UIRenderer.forceRender();
     });
 
     await expect(page.locator('#game-over-screen')).toHaveClass(/screen--active/, { timeout: 5000 });
@@ -168,11 +172,12 @@ test.describe('Win / Game Over', () => {
 
     // Trigger game over with Alice as winner
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      state.players.forEach(p => { if (!p.isHuman) p.isAlive = false; });
-      state.gamePhase = 'game-over';
-      state.gameStatus = 'completed';
-      window.GameState.setState(state);
+      window.GameState.mutate(function(state) {
+        state.players.forEach(p => { if (!p.isHuman) p.isAlive = false; });
+        state.gamePhase = 'game-over';
+        state.gameStatus = 'completed';
+      });
+      window.UIRenderer.forceRender();
     });
 
     await expect(page.locator('#game-over-screen')).toHaveClass(/screen--active/, { timeout: 5000 });

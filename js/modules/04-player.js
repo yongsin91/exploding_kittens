@@ -99,19 +99,15 @@
         }
 
         try {
-            const state = window.GameState.getState();
-            const player = state.players[playerId];
-
-            if (!player) {
-                console.error(`[Module 4] addCardToHand: Player ${playerId} not found`);
-                return false;
-            }
-
-            player.hand.push(card);
-            player.stats.cardsDrawn++;
-
-            // Update state
-            return window.GameState.setState({ players: state.players });
+            return window.GameState.mutate(function(state) {
+                const player = state.players[playerId];
+                if (!player) {
+                    console.error(`[Module 4] addCardToHand: Player ${playerId} not found`);
+                    return;
+                }
+                player.hand.push(card);
+                player.stats.cardsDrawn++;
+            });
         } catch (error) {
             console.error('[Module 4] addCardToHand error:', error);
             return false;
@@ -135,25 +131,24 @@
         }
 
         try {
-            const state = window.GameState.getState();
-            const player = state.players[playerId];
+            let removedCard = null;
+            const success = window.GameState.mutate(function(state) {
+                const player = state.players[playerId];
 
-            if (!player) {
-                console.error(`[Module 4] removeCardFromHand: Player ${playerId} not found`);
-                return null;
-            }
+                if (!player) {
+                    console.error(`[Module 4] removeCardFromHand: Player ${playerId} not found`);
+                    return;
+                }
 
-            const cardIndex = player.hand.findIndex(c => c.instanceId === cardInstanceId);
-            
-            if (cardIndex === -1) {
-                console.warn(`[Module 4] removeCardFromHand: Card ${cardInstanceId} not in hand`);
-                return null;
-            }
+                const cardIndex = player.hand.findIndex(c => c.instanceId === cardInstanceId);
+                
+                if (cardIndex === -1) {
+                    console.warn(`[Module 4] removeCardFromHand: Card ${cardInstanceId} not in hand`);
+                    return;
+                }
 
-            const removedCard = player.hand.splice(cardIndex, 1)[0];
-
-            // Update state
-            window.GameState.setState({ players: state.players });
+                removedCard = player.hand.splice(cardIndex, 1)[0];
+            });
 
             return removedCard;
         } catch (error) {
@@ -253,26 +248,28 @@
         }
 
         try {
-            const state = window.GameState.getState();
-            const player = state.players[playerId];
+            window.GameState.mutate(function(state) {
+                const player = state.players[playerId];
 
-            if (!player) {
-                console.error(`[Module 4] killPlayer: Player ${playerId} not found`);
-                return false;
-            }
+                if (!player) {
+                    console.error(`[Module 4] killPlayer: Player ${playerId} not found`);
+                    return;
+                }
 
-            player.isAlive = false;
-            player.stats.timesEliminated++;
+                player.isAlive = false;
+                player.stats.timesEliminated++;
+            });
 
             // Log action
+            const player = window.Player.getPlayerById(playerId);
             window.GameState.logAction({
                 type: 'PLAYER_ELIMINATED',
                 playerId,
-                playerName: player.name,
-                description: `${player.name} drew an Exploding Kitten without a Defuse`
+                playerName: player ? player.name : 'Unknown',
+                description: `${player ? player.name : 'Player'} drew an Exploding Kitten without a Defuse`
             });
 
-            return window.GameState.setState({ players: state.players });
+            return true;
         } catch (error) {
             console.error('[Module 4] killPlayer error:', error);
             return false;
@@ -291,29 +288,31 @@
         }
 
         try {
-            const state = window.GameState.getState();
-            const player = state.players[playerId];
+            window.GameState.mutate(function(state) {
+                const player = state.players[playerId];
 
-            if (!player) {
-                console.error(`[Module 4] revivePlayer: Player ${playerId} not found`);
-                return false;
-            }
+                if (!player) {
+                    console.error(`[Module 4] revivePlayer: Player ${playerId} not found`);
+                    return;
+                }
 
-            if (player.isAlive) {
-                return true; // Already alive
-            }
+                if (player.isAlive) {
+                    return; // Already alive
+                }
 
-            player.isAlive = true;
-            player.isEliminated = false;
+                player.isAlive = true;
+                player.isEliminated = false;
+            });
 
+            const player = window.Player.getPlayerById(playerId);
             window.GameState.logAction({
                 type: 'PLAYER_REVIVED',
                 playerId,
-                playerName: player.name,
-                description: `${player.name} used a Defuse card`
+                playerName: player ? player.name : 'Unknown',
+                description: `${player ? player.name : 'Player'} used a Defuse card`
             });
 
-            return window.GameState.setState({ players: state.players });
+            return true;
         } catch (error) {
             console.error('[Module 4] revivePlayer error:', error);
             return false;

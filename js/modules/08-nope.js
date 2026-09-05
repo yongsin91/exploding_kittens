@@ -197,11 +197,14 @@
             });
 
             // Update player stats
-            const state = window.GameState.getState();
-            const statePlayer = state.players[playerId];
+            const statePlayer = window.Player.getPlayerById(playerId);
             if (statePlayer) {
-                statePlayer.stats.nopesPlayed = (statePlayer.stats.nopesPlayed || 0) + 1;
-                window.GameState.setState({ players: state.players });
+                window.GameState.mutate(function(state) {
+                    const p = state.players[playerId];
+                    if (p) {
+                        p.stats.nopesPlayed = (p.stats.nopesPlayed || 0) + 1;
+                    }
+                });
             }
 
             // Log the nope
@@ -264,22 +267,21 @@
 
             const noped = isActionNoped();
             const action = pendingAction;
-            const stack = nopeStack.slice();
 
             // Move all Nope cards to discard pile
-            const state = window.GameState.getState();
-            stack.forEach(nope => {
-                state.discardPile.push(nope.card);
-            });
-
-            // Move original action cards to discard pile
-            if (action.cards && action.cards.length > 0) {
-                action.cards.forEach(card => {
-                    state.discardPile.push(card);
+            const stack = nopeStack.slice();
+            window.GameState.mutate(function(state) {
+                stack.forEach(nope => {
+                    state.discardPile.push(nope.card);
                 });
-            }
 
-            window.GameState.setState({ discardPile: state.discardPile });
+                // Move original action cards to discard pile
+                if (action.cards && action.cards.length > 0) {
+                    action.cards.forEach(card => {
+                        state.discardPile.push(card);
+                    });
+                }
+            });
 
             // Close the nope window in TurnEngine
             window.TurnEngine.closeNopeWindow();

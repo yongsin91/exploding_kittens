@@ -273,9 +273,9 @@
             var card = player.hand.find(function(c) { return c.instanceId === decision.cardInstanceId; });
             if (card) {
                 window.Player.removeCardFromHand(playerId, decision.cardInstanceId);
-                var discardPile = window.GameState.getState().discardPile;
-                discardPile.push(card);
-                window.GameState.setState({ discardPile: discardPile });
+                window.GameState.mutate(function(state) {
+                    state.discardPile.push(card);
+                });
 
                 var effectResult = window.CardEffects.resolveCardEffect(decision.cardType, playerId, decision.targetId);
                 console.log('[GameFlow] AI card effect:', effectResult);
@@ -320,9 +320,9 @@
                 // AI defuses
                 var defuseCard = player.hand.find(function(c) { return c.type === 'defuse'; });
                 window.Player.removeCardFromHand(playerId, defuseCard.instanceId);
-                var discardPile = state.discardPile;
-                discardPile.push(defuseCard);
-                window.GameState.setState({ discardPile: discardPile });
+                window.GameState.mutate(function(state) {
+                    state.discardPile.push(defuseCard);
+                });
 
                 var position = window.AI.aiChooseDefusePosition(state.drawPile.length);
                 window.TurnEngine.placeExplodingKitten(result.card, position);
