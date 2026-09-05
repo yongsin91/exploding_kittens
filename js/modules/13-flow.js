@@ -362,6 +362,7 @@
         }
 
         // For See the Future, AI remembers the cards
+        // peekedCards[0] = top of deck (next to draw), in draw order
         if (effectResult.effectType === 'see_future' && window.AI) {
             var state = window.GameState.getState();
             var peekedCards = state.drawPile.slice(-3).reverse();

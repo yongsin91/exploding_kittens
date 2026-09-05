@@ -558,12 +558,19 @@
     /**
      * Store peeked cards info for AI.
      * Uses a private memory map since GameState is immutable.
+     * 
+     * Card ordering convention:
+     * peekedCards[0] = top of deck (next to be drawn)
+     * peekedCards[1] = second card
+     * peekedCards[2] = third card
+     * 
      * @param {number} playerId - AI player
-     * @param {Array} peekedCards - Top 3 cards from draw pile
+     * @param {Array} peekedCards - Top 3 cards from draw pile (top first)
      */
     var peekMemory = {};
 
     function rememberPeekedCards(playerId, peekedCards) {
+        // Store cards in draw order: [0] = top (next draw), [1] = second, [2] = third
         peekMemory[playerId] = {
             topCard: peekedCards[0] ? peekedCards[0].type : null,
             top3: peekedCards.map(function(c) { return c.type; })
