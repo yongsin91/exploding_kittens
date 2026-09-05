@@ -44,7 +44,7 @@ Task 17 (integration) — depends on all
 | 7 | task-7-defuse | ✅ DONE | 66ee30d | Merged to main |
 | 8 | task-8-see-future | ✅ DONE | 0f937f2 | Merged to main |
 | 9 | task-9-ai-nope | ✅ DONE | 50633a8 | Merged to main |
-| 10 | task-10-combo-cancel | PENDING | - | |
+| 10 | task-10-combo-cancel | ✅ DONE | 6c88b7c | Merged to main |
 | 11 | task-11-first-player | ✅ DONE | d6941ea | Merged to main |
 | 12 | task-12-favor-desc | ✅ DONE | 3daa5e0 | Merged to main |
 | 13 | task-13-nope-autoclose | PENDING | - | |

@@ -54,6 +54,12 @@
      */
     let autoCloseTimeout = null;
 
+    /**
+     * Timeout ID for the hard window expiration fallback.
+     * @private
+     */
+    let windowExpiryTimeout = null;
+
     // ========== NOPE WINDOW MANAGEMENT ==========
 
     /**
@@ -124,6 +130,17 @@
             console.log(`[Module 8] Nope window opened for: ${pendingAction.description}`);
 
             scheduleAINopeChecks();
+
+            // Set hard expiration fallback — auto-close after NOPE_WINDOW_DURATION_MS
+            if (windowExpiryTimeout) {
+                clearTimeout(windowExpiryTimeout);
+            }
+            windowExpiryTimeout = setTimeout(function() {
+                if (pendingAction) {
+                    console.log('[Module 8] Nope window expired — auto-closing');
+                    closeNopeWindow();
+                }
+            }, window.GAME_CONFIG.NOPE_WINDOW_DURATION_MS || 5000);
 
             return true;
         } catch (error) {
@@ -239,6 +256,17 @@
 
             console.log(`[Module 8] ${player.name} played Nope! Stack: ${nopeStack.length} (${isActionNoped() ? 'CANCELLED' : 'PROCEEDS'})`);
 
+            // Reset expiry timeout when someone nopes (new window for counter-nope)
+            if (windowExpiryTimeout) {
+                clearTimeout(windowExpiryTimeout);
+            }
+            windowExpiryTimeout = setTimeout(function() {
+                if (pendingAction) {
+                    console.log('[Module 8] Nope window expired after nope — auto-closing');
+                    closeNopeWindow();
+                }
+            }, window.GAME_CONFIG.NOPE_WINDOW_DURATION_MS || 5000);
+
             scheduleAINopeChecks();
 
             return true;
@@ -265,6 +293,11 @@
             if (autoCloseTimeout) {
                 clearTimeout(autoCloseTimeout);
                 autoCloseTimeout = null;
+            }
+
+            if (windowExpiryTimeout) {
+                clearTimeout(windowExpiryTimeout);
+                windowExpiryTimeout = null;
             }
 
             const noped = isActionNoped();
