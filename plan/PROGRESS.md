@@ -41,9 +41,9 @@ Task 17 (integration) — depends on all
 | 4 | task-4-attack | ✅ DONE | 1f163dc | Merged to main |
 | 5 | task-5-skip-attack | ✅ DONE | 7a25855 | Merged to main |
 | 6 | task-6-five-diff | ✅ DONE | 1370dcc | Merged to main |
-| 7 | task-7-defuse | PENDING | - | |
-| 8 | task-8-see-future | PENDING | - | |
-| 9 | task-9-ai-nope | PENDING | - | |
+| 7 | task-7-defuse | ✅ DONE | 66ee30d | Merged to main |
+| 8 | task-8-see-future | ✅ DONE | 0f937f2 | Merged to main |
+| 9 | task-9-ai-nope | ✅ DONE | 50633a8 | Merged to main |
 | 10 | task-10-combo-cancel | PENDING | - | |
 | 11 | task-11-first-player | ✅ DONE | d6941ea | Merged to main |
 | 12 | task-12-favor-desc | ✅ DONE | 3daa5e0 | Merged to main |
@@ -56,7 +56,7 @@ Task 17 (integration) — depends on all
 ## Code Reviews
 - Review 1 (after Tasks 1-3): ✅ PASSED — see plan/CODE-REVIEW-1.md
 - Review 2 (after Tasks 4-6): ✅ PASSED — see plan/CODE-REVIEW-2.md
-- Review 3 (after Tasks 7-9): PENDING
+- Review 3 (after Tasks 7-9): ✅ PASSED — see plan/CODE-REVIEW-3.md
 - Review 4 (after Tasks 10-12): PENDING
 - Review 5 (after Tasks 13-15): PENDING
 - Review 6 (after Tasks 16-17): PENDING

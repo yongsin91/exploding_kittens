@@ -320,6 +320,10 @@
             modal.setAttribute('aria-hidden', 'true');
             log(`Modal closed: ${modalId}`);
         }
+        // Clear combo selection when closing combo modal
+        if (modalId === 'combo-modal' && window.Events && typeof window.Events.clearComboSelection === 'function') {
+            window.Events.clearComboSelection();
+        }
         // Also clear the game state activeModal so the UI doesn't reopen it
         if (window.GameState) {
             window.GameState.setState({ activeModal: null, modalData: {} });
