@@ -788,9 +788,19 @@ test.describe('Five Different Combo', () => {
     await page.locator('#combo-confirm-btn').click();
     await page.waitForTimeout(500);
 
-    // Discard browser modal should open
+    // Nope window should open — dismiss it (AI auto-resolves or click Let It Happen)
+    await dismissNopeIfPresent(page);
+    await page.waitForTimeout(500);
+
+    // Discard browser modal should open after nope resolves
     const discardModal = page.locator('#discard-browser-modal');
-    const isOpen = await discardModal.evaluate(el => el.classList.contains('modal--active'));
+    // Poll for modal to open
+    let isOpen = false;
+    for (let i = 0; i < 10; i++) {
+      await page.waitForTimeout(300);
+      isOpen = await discardModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
+      if (isOpen) break;
+    }
     expect(isOpen).toBe(true);
   });
 
@@ -828,9 +838,19 @@ test.describe('Five Different Combo', () => {
     await page.locator('#combo-confirm-btn').click();
     await page.waitForTimeout(500);
 
+    // Nope window should open — dismiss it
+    await dismissNopeIfPresent(page);
+    await page.waitForTimeout(500);
+
     // Discard browser should be open — pick a card
     const discardCards = page.locator('#discard-cards .card');
-    const discardCount = await discardCards.count();
+    // Poll for cards to appear
+    let discardCount = 0;
+    for (let i = 0; i < 10; i++) {
+      await page.waitForTimeout(300);
+      discardCount = await discardCards.count();
+      if (discardCount > 0) break;
+    }
     expect(discardCount).toBeGreaterThan(0);
 
     await discardCards.nth(0).click();
