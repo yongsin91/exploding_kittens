@@ -188,7 +188,6 @@ test.describe('Multi-Player Edge Cases', () => {
     // Set attack state
     await page.evaluate(() => {
       window.GameState.mutate(function(state) {
-        state.isAttackActive = true;
         state.attackTurnsRemaining = 2;
       });
       window.UIRenderer.forceRender();

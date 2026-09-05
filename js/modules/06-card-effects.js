@@ -110,21 +110,28 @@
                 return { success: false, error: 'Player not found' };
             }
 
-            // Activate attack mode
-            window.TurnEngine.activateAttack(2);
+            // Calculate turns to pass to next player
+            // If under attack, pass remaining turns (minus 1 for this turn) + 2
+            // If not under attack, just pass 2
+            const state = window.GameState.getState();
+            const currentRemaining = state.attackTurnsRemaining;
+            const turnsToPass = (currentRemaining > 0 ? currentRemaining - 1 : 0) + 2;
+
+            // Activate attack for next player
+            window.TurnEngine.activateAttack(turnsToPass);
 
             window.GameState.logAction({
                 type: 'CARD_PLAYED',
                 cardType: 'attack',
                 playerId,
                 playerName: player.name,
-                description: `${player.name} played Attack! Next player gets 2 turns.`
+                description: `${player.name} played Attack! Next player takes ${turnsToPass} turns.`
             });
 
             return {
                 success: true,
                 effectType: 'attack',
-                turnsGranted: 2,
+                turnsGranted: turnsToPass,
                 targetPlayer: 'next',
                 requiresNopeResolution: true
             };
