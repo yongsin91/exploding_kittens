@@ -351,6 +351,14 @@
     function handleEffectUI(effectResult, playerId) {
         if (!effectResult.success) return;
 
+        // For Shuffle, actually shuffle the draw pile
+        if (effectResult.effectType === 'shuffle') {
+            window.GameState.mutate(function(state) {
+                state.drawPile = window.shuffle(state.drawPile);
+            });
+            window.UIRenderer.forceRender();
+        }
+
         // For See the Future, AI remembers the cards
         if (effectResult.effectType === 'see_future' && window.AI) {
             var state = window.GameState.getState();
