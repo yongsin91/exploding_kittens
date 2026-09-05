@@ -270,7 +270,20 @@
     }
 
     /**
-     * See the Future effect: Peek top 3 cards
+     * See the Future effect: Peek top 3 cards of the draw pile.
+     * 
+     * IMPORTANT: The draw pile uses pop() to draw cards, meaning the LAST element
+     * in the array (drawPile[drawPile.length - 1]) is the TOP of the deck 
+     * (the next card to be drawn).
+     * 
+     * To get the top 3 cards in draw order (top first):
+     * - slice(-3) returns [3rd-from-top, 2nd-from-top, top]
+     * - .reverse() returns [top, 2nd-from-top, 3rd-from-top]
+     * 
+     * So peekedCards[0] = next card to be drawn (top of deck)
+     *    peekedCards[1] = second card to be drawn
+     *    peekedCards[2] = third card to be drawn
+     * 
      * @private
      */
     function handleSeeTheFuture(playerId) {
@@ -282,7 +295,10 @@
 
             const state = window.GameState.getState();
             const peekCount = window.GAME_CONFIG.PEEK_CARD_COUNT || 3;
-            const topCards = state.drawPile.slice(-peekCount).reverse(); // Top cards
+            // Draw pile uses pop() so last element = top of deck (next to draw)
+            // slice(-3) = [3rd-from-top, 2nd-from-top, top]
+            // .reverse() = [top, 2nd, 3rd] — correct draw order for display
+            const topCards = state.drawPile.slice(-peekCount).reverse();
 
             window.GameState.setState({
                 activeModal: 'peek-modal',
