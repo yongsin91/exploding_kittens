@@ -471,6 +471,19 @@
     // ========== COMBO HANDLING ==========
 
     /**
+     * Clear combo card selection state.
+     * Called when combo modal is closed/cancelled.
+     */
+    function clearComboSelection() {
+        selectedComboCards = [];
+        var comboSelector = document.getElementById('combo-card-selector');
+        if (comboSelector) {
+            var selectedCards = comboSelector.querySelectorAll('.card--selected');
+            selectedCards.forEach(function(el) { el.classList.remove('card--selected'); });
+        }
+    }
+
+    /**
      * Handle combo card selection toggle.
      * @param {string} cardInstanceId
      */
@@ -724,6 +737,7 @@
         handleFavorGive: handleFavorGive,
         handleComboSubmit: handleComboSubmit,
         handleComboCardToggle: handleComboCardToggle,
+        clearComboSelection: clearComboSelection,
         handleThreeKindName: handleThreeKindName,
         handleDiscardPick: handleDiscardPick,
         handlePlayAgain: handlePlayAgain
