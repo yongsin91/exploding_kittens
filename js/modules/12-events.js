@@ -175,6 +175,14 @@
                         window.GameFlow.handleTurnEnd();
                     }
                 }
+
+                // Shuffle card actually shuffles the draw pile
+                if (card.type === 'shuffle') {
+                    window.GameState.mutate(function(state) {
+                        state.drawPile = window.shuffle(state.drawPile);
+                    });
+                    window.UIRenderer.forceRender();
+                }
             };
             window.Nope.openNopeWindow({
                 type: 'play-card',
