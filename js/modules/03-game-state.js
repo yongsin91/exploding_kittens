@@ -48,8 +48,8 @@
             // Current turn state
             turnPhase: 'draw', // draw, play, resolve
             cardsPlayed: [], // Cards played this turn
-            isAttackActive: false, // Track if in attack mode
-            attackTurnsRemaining: 0, // Turns left on attack
+            attackTurnsRemaining: 0,  // 0 = no attack, >0 = turns remaining for current player
+            pendingAttackForNext: 0,    // Turns to pass to next player when their turn starts
             
             // Nope window state
             nopeWindowActive: false,

@@ -90,8 +90,8 @@
             gamePhase: 'active',
             turnPhase: 'draw',
             cardsPlayed: [],
-            isAttackActive: false,
             attackTurnsRemaining: 0,
+            pendingAttackForNext: 0,
             nopeWindowActive: false,
             nopeWindowCard: null,
             nopeWindowExpires: null,
@@ -202,18 +202,20 @@
             return;
         }
 
-        // Handle attack turns
+        // Handle attack turns — same player goes again if they still owe turns
         var state = window.GameState.getState();
-        if (state.isAttackActive && state.attackTurnsRemaining > 0) {
-            // Same player goes again
-            var remaining = state.attackTurnsRemaining - 1;
-            if (remaining > 0) {
-                window.TurnEngine.activateAttack(remaining);
-                startTurn(state.currentPlayerIndex);
-                return;
-            } else {
-                window.TurnEngine.deactivateAttack();
-            }
+        if (state.attackTurnsRemaining > 1) {
+            // Current player still has attack turns remaining
+            window.GameState.setState({
+                attackTurnsRemaining: state.attackTurnsRemaining - 1
+            });
+            startTurn(state.currentPlayerIndex);
+            return;
+        }
+
+        // Attack turns exhausted (or no attack) — advance to next player
+        if (state.attackTurnsRemaining > 0) {
+            window.TurnEngine.deactivateAttack();
         }
 
         startTurn(nextIndex);

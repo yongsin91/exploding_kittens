@@ -79,17 +79,20 @@
                 return false;
             }
 
-            // Update state
+            // Update state — apply pending attack for this player
+            const pendingAttack = state.pendingAttackForNext || 0;
+            const currentAttackRemaining = pendingAttack > 0 ? pendingAttack : Math.max(0, state.attackTurnsRemaining);
+            
             const success = window.GameState.setState({
                 currentPlayerIndex: playerId,
                 turnPhase: 'draw',
                 cardsPlayed: [],
-                isAttackActive: state.isAttackActive,
-                attackTurnsRemaining: Math.max(0, state.attackTurnsRemaining - 1)
+                attackTurnsRemaining: currentAttackRemaining,
+                pendingAttackForNext: 0
             });
 
             if (success) {
-                console.log(`[Module 5] Turn started: ${player.name} (Attack turns left: ${state.attackTurnsRemaining - 1})`);
+                console.log(`[Module 5] Turn started: ${player.name} (Attack turns remaining: ${currentAttackRemaining})`);
                 
                 window.GameState.logAction({
                     type: 'TURN_START',
@@ -301,8 +304,7 @@
      */
     function activateAttack(turns = 2) {
         return window.GameState.setState({
-            isAttackActive: true,
-            attackTurnsRemaining: turns
+            pendingAttackForNext: turns
         });
     }
 
@@ -312,8 +314,8 @@
      */
     function deactivateAttack() {
         return window.GameState.setState({
-            isAttackActive: false,
-            attackTurnsRemaining: 0
+            attackTurnsRemaining: 0,
+            pendingAttackForNext: 0
         });
     }
 
@@ -323,7 +325,7 @@
      */
     function isUnderAttack() {
         const state = window.GameState.getState();
-        return state.isAttackActive && state.attackTurnsRemaining > 0;
+        return state.attackTurnsRemaining > 0;
     }
 
     // ========== NOPE WINDOW ==========
@@ -395,8 +397,8 @@
             playerId: player ? player.id : -1,
             phase: state.turnPhase,
             cardsPlayed: state.cardsPlayed.length,
-            isAttackActive: state.isAttackActive,
             attackTurnsRemaining: state.attackTurnsRemaining,
+            pendingAttackForNext: state.pendingAttackForNext,
             deckSize: state.drawPile.length,
             discardSize: state.discardPile.length,
             nopeWindowActive: state.nopeWindowActive
