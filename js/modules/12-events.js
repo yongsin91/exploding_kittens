@@ -541,11 +541,24 @@
             return;
         }
 
-        // For five different, open discard browser
+        // For five different, route through nope window
         if (comboInfo.comboType === 'five_different') {
-            window.GameState.setState({
-                activeModal: 'discard-browser-modal',
-                modalData: { comboInfo: comboInfo, playerId: player.id }
+            var state = window.GameState.getState();
+            var discardPile = state.discardPile;
+            var resolver = function() {
+                // After nope resolves, open discard browser modal
+                window.GameState.setState({
+                    activeModal: 'discard-browser-modal',
+                    modalData: { comboInfo: comboInfo, playerId: player.id, discardPile: discardPile }
+                });
+            };
+            window.Nope.openNopeWindow({
+                type: 'combo',
+                cardType: 'five_different',
+                comboInfo: comboInfo,
+                playerId: player.id,
+                description: player.name + ' plays Five Different combo',
+                resolver: resolver
             });
             return;
         }

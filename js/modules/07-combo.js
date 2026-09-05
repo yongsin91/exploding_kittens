@@ -384,7 +384,7 @@
             comboType: 'five_different',
             description: 'Five Different! Pick a card from the discard pile.',
             requiresUI: true,
-            requiresNopeResolution: false // Note: Five Different is NOT nopeable
+            requiresNopeResolution: true // Five Different IS nopeable per official rules
         };
     }
 
@@ -504,8 +504,8 @@
             return false;
         }
 
-        // Only Two and Three of a Kind can be noped
-        return comboInfo.type === 'two_of_a_kind' || comboInfo.type === 'three_of_a_kind';
+        // All combos can be noped per official rules
+        return comboInfo.type === 'two_of_a_kind' || comboInfo.type === 'three_of_a_kind' || comboInfo.type === 'five_different';
     }
 
     // ========== PUBLIC API ==========
