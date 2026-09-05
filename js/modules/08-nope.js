@@ -70,6 +70,7 @@
      * @param {string} [action.cardType] - Card type (for card actions)
      * @param {Object} [action.comboInfo] - Combo info (for combo actions)
      * @param {string} [action.namedCard] - Named card (for three of a kind)
+     * @param {Function} [action.onComplete] - Callback always called when nope window closes (noped or not)
      * @returns {boolean} Success status
      */
     function openNopeWindow(action) {
@@ -93,6 +94,7 @@
                 targetId: action.targetId !== undefined ? action.targetId : null,
                 namedCard: action.namedCard || null,
                 resolver: action.resolver,
+                onComplete: action.onComplete || null,
                 description: action.description || 'An action was played'
             };
 
@@ -341,6 +343,15 @@
 
             pendingAction = null;
             nopeStack = [];
+
+            // Call onComplete callback if provided (always called, noped or not)
+            if (action.onComplete) {
+                try {
+                    action.onComplete(result);
+                } catch (onCompleteError) {
+                    console.error('[Module 8] onComplete callback error:', onCompleteError);
+                }
+            }
 
             return result;
         } catch (error) {
