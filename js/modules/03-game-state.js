@@ -120,11 +120,39 @@
     // ========== STATE GETTERS AND SETTERS ==========
 
     /**
-     * Get a copy of the current game state
-     * @returns {Object} Deep copy of game state
+     * Get the live game state object (NOT a copy).
+     * For read-only access, this is safe and efficient.
+     * For modifications, use mutate() to ensure observers are notified.
+     * 
+     * @returns {Object} Live game state object
      */
     function getState() {
-        return JSON.parse(JSON.stringify(gameState));
+        return gameState;
+    }
+
+    /**
+     * Mutate game state atomically.
+     * Calls fn(state) with the live state object, then notifies observers.
+     * Use this for read-modify-write patterns instead of getState()+setState().
+     * 
+     * @param {Function} fn - Mutator function receiving live state
+     * @returns {boolean} Whether mutation was successful
+     */
+    function mutate(fn) {
+        if (typeof fn !== 'function') {
+            console.error('[Module 3] mutate: fn must be a function');
+            return false;
+        }
+
+        try {
+            fn(gameState);
+            gameState.updatedAt = new Date().toISOString();
+            notifyObservers({ _mutate: true });
+            return true;
+        } catch (error) {
+            console.error('[Module 3] mutate error:', error);
+            return false;
+        }
     }
 
     /**
@@ -168,16 +196,14 @@
             const changes = {};
             let hasChanges = false;
 
-            // Collect changes and validate
+            // Collect changes and apply
             Object.entries(updates).forEach(([key, value]) => {
-                if (key in gameState && gameState[key] !== value) {
+                if (gameState[key] !== value) {
                     changes[key] = {
                         old: gameState[key],
                         new: value
                     };
                     hasChanges = true;
-                } else if (!(key in gameState)) {
-                    console.warn(`[Module 3] setState: Unknown property "${key}" ignored`);
                 }
             });
 
@@ -312,6 +338,7 @@
         getStateProperty,
         setState,
         setStateProperty,
+        mutate,
         subscribe,
         reset,
         logAction,

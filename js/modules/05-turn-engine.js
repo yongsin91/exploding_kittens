@@ -180,7 +180,6 @@
         }
 
         try {
-            const state = window.GameState.getState();
             const player = window.Player.getPlayerById(playerId);
 
             if (!player) {
@@ -188,16 +187,22 @@
                 return null;
             }
 
-            // Get draw pile
-            const drawPile = state.drawPile;
-            
-            if (drawPile.length === 0) {
+            let drawnCard = null;
+            let isExplodingKitten = false;
+
+            // Draw top card via mutate
+            window.GameState.mutate(function(state) {
+                const drawPile = state.drawPile;
+                if (drawPile.length === 0) {
+                    return;
+                }
+                drawnCard = drawPile.pop();
+            });
+
+            if (!drawnCard) {
                 console.error('[Module 5] drawCard: Draw pile is empty');
                 return null;
             }
-
-            // Draw top card
-            const drawnCard = drawPile.pop();
 
             // Add to player's hand
             window.Player.addCardToHand(playerId, drawnCard);
@@ -237,21 +242,18 @@
                     
                     // Remove from hand and discard
                     window.Player.removeCardFromHand(playerId, drawnCard.instanceId);
-                    state.discardPile.push(drawnCard);
+                    window.GameState.mutate(function(state) {
+                        state.discardPile.push(drawnCard);
+                    });
                     
                     // Kill player
                     window.Player.killPlayer(playerId);
                     
                     // Update state
-                    window.GameState.setState({
-                        drawPile,
-                        discardPile: state.discardPile,
-                        turnPhase: 'end'
-                    });
+                    window.GameState.setState({ turnPhase: 'end' });
                 }
             } else {
-                // Regular card - update deck state
-                window.GameState.setState({ drawPile });
+                // Regular card - deck state already updated via mutate above
             }
 
             return { success: true, card: drawnCard };
@@ -271,16 +273,15 @@
      */
     function placeExplodingKitten(ekCard, position = -1) {
         try {
-            const state = window.GameState.getState();
-            const drawPile = state.drawPile;
+            window.GameState.mutate(function(state) {
+                const drawPile = state.drawPile;
 
-            if (position < 0 || position > drawPile.length) {
-                position = drawPile.length; // Default to bottom
-            }
+                if (position < 0 || position > drawPile.length) {
+                    position = drawPile.length; // Default to bottom
+                }
 
-            drawPile.splice(position, 0, ekCard);
-
-            window.GameState.setState({ drawPile });
+                drawPile.splice(position, 0, ekCard);
+            });
             
             console.log(`[Module 5] Exploding Kitten placed at position ${position} in deck`);
 

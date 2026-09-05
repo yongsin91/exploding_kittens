@@ -141,9 +141,9 @@
         window.Player.removeCardFromHand(player.id, cardInstanceId);
 
         // Add to discard pile
-        var state = window.GameState.getState();
-        state.discardPile.push(card);
-        window.GameState.setState({ discardPile: state.discardPile });
+        window.GameState.mutate(function(state) {
+            state.discardPile.push(card);
+        });
 
         // Resolve card effect
         var result = window.CardEffects.resolveCardEffect(card.type, player.id, targetId);
@@ -325,9 +325,9 @@
         if (favorCard) {
             // Remove favor card from hand and add to discard
             window.Player.removeCardFromHand(playerId, favorCard.instanceId);
-            var discardPile = state.discardPile;
-            discardPile.push(favorCard);
-            window.GameState.setState({ discardPile: discardPile });
+            window.GameState.mutate(function(state) {
+                state.discardPile.push(favorCard);
+            });
 
             // Open nope window for favor, then show favor-give modal
             var favorResult = window.CardEffects.resolveCardEffect('favor', playerId, targetPlayerId);
@@ -437,7 +437,9 @@
         var defuseCard = player.hand.find(function(c) { return c.type === 'defuse'; });
         if (defuseCard) {
             window.Player.removeCardFromHand(playerId, defuseCard.instanceId);
-            state.discardPile.push(defuseCard);
+            window.GameState.mutate(function(state) {
+                state.discardPile.push(defuseCard);
+            });
         }
 
         // Place EK back in deck

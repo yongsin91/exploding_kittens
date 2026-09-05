@@ -94,12 +94,12 @@ test.describe('Multi-Player Edge Cases', () => {
 
     // Kill an AI player
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      // Kill the first AI player (player index 1)
-      if (state.players[1]) {
-        state.players[1].isAlive = false;
-        window.GameState.setState(state);
-      }
+      window.GameState.mutate(function(state) {
+        if (state.players[1]) {
+          state.players[1].isAlive = false;
+        }
+      });
+      window.UIRenderer.forceRender();
     });
 
     await page.waitForTimeout(500);
@@ -120,11 +120,12 @@ test.describe('Multi-Player Edge Cases', () => {
     await waitForHumanTurn(page);
 
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      if (state.players[1]) {
-        state.players[1].isAlive = false;
-        window.GameState.setState(state);
-      }
+      window.GameState.mutate(function(state) {
+        if (state.players[1]) {
+          state.players[1].isAlive = false;
+        }
+      });
+      window.UIRenderer.forceRender();
     });
 
     await page.waitForTimeout(500);
@@ -141,11 +142,12 @@ test.describe('Multi-Player Edge Cases', () => {
     await page.waitForTimeout(3000);
 
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      if (state.players[1]) {
-        state.players[1].isAlive = false;
-        window.GameState.setState(state);
-      }
+      window.GameState.mutate(function(state) {
+        if (state.players[1]) {
+          state.players[1].isAlive = false;
+        }
+      });
+      window.UIRenderer.forceRender();
     });
 
     await page.waitForTimeout(500);
@@ -163,10 +165,11 @@ test.describe('Multi-Player Edge Cases', () => {
 
     // Kill two AI players
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      if (state.players[1]) state.players[1].isAlive = false;
-      if (state.players[2]) state.players[2].isAlive = false;
-      window.GameState.setState(state);
+      window.GameState.mutate(function(state) {
+        if (state.players[1]) state.players[1].isAlive = false;
+        if (state.players[2]) state.players[2].isAlive = false;
+      });
+      window.UIRenderer.forceRender();
     });
 
     await page.waitForTimeout(500);
@@ -184,10 +187,11 @@ test.describe('Multi-Player Edge Cases', () => {
 
     // Set attack state
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      state.isAttackActive = true;
-      state.attackTurnsRemaining = 2;
-      window.GameState.setState(state);
+      window.GameState.mutate(function(state) {
+        state.isAttackActive = true;
+        state.attackTurnsRemaining = 2;
+      });
+      window.UIRenderer.forceRender();
     });
 
     await page.waitForTimeout(500);

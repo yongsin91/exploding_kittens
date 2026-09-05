@@ -92,49 +92,49 @@ async function setupControlledGame(page, options = {}) {
 
   // Set up controlled state via game state manipulation
   await page.evaluate((opts) => {
-    const state = window.GameState.getState();
+    window.GameState.mutate(function(state) {
+      // Ensure human player is current
+      const humanPlayer = state.players.find(p => p.isHuman);
+      if (humanPlayer) {
+        state.currentPlayerIndex = humanPlayer.id;
+      }
 
-    // Ensure human player is current
-    const humanPlayer = state.players.find(p => p.isHuman);
-    if (humanPlayer) {
-      state.currentPlayerIndex = humanPlayer.id;
-    }
-
-    // Build hand cards from CARD_TYPES definitions
-    const hand = opts.handCards.map((type, i) => {
-      const def = window.CARD_TYPES[type];
-      return {
-        instanceId: 'test-card-' + i,
-        type: type,
-        emoji: def.emoji,
-        name: def.name,
-        cornerIcon: def.cornerIcon || null
-      };
-    });
-
-    // Set human player's hand
-    state.players[state.currentPlayerIndex].hand = hand;
-
-    // Build draw pile if specified
-    // Note: drawCard uses pop(), which takes from the END of the array
-    // So the first card drawn is the LAST element in deckCards
-    if (opts.deckCards.length > 0) {
-      state.drawPile = opts.deckCards.map((type, i) => {
+      // Build hand cards from CARD_TYPES definitions
+      const hand = opts.handCards.map((type, i) => {
         const def = window.CARD_TYPES[type];
         return {
-          instanceId: 'deck-card-' + i,
+          instanceId: 'test-card-' + i,
           type: type,
           emoji: def.emoji,
           name: def.name,
           cornerIcon: def.cornerIcon || null
         };
       });
-    }
 
-    state.turnPhase = 'draw';
-    state.activeModal = null;
-    state.nopeWindowActive = false;
-    window.GameState.setState(state);
+      // Set human player's hand
+      state.players[state.currentPlayerIndex].hand = hand;
+
+      // Build draw pile if specified
+      // Note: drawCard uses pop(), which takes from the END of the array
+      // So the first card drawn is the LAST element in deckCards
+      if (opts.deckCards.length > 0) {
+        state.drawPile = opts.deckCards.map((type, i) => {
+          const def = window.CARD_TYPES[type];
+          return {
+            instanceId: 'deck-card-' + i,
+            type: type,
+            emoji: def.emoji,
+            name: def.name,
+            cornerIcon: def.cornerIcon || null
+          };
+        });
+      }
+
+      state.turnPhase = 'draw';
+      state.activeModal = null;
+      state.nopeWindowActive = false;
+    });
+    window.UIRenderer.forceRender();
   }, { handCards, deckCards, currentPlayerIndex });
 
   await page.waitForTimeout(300);
@@ -753,12 +753,13 @@ test.describe('Five Different Combo', () => {
 
     // Add some cards to discard pile first
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      state.discardPile = [
-        { instanceId: 'discard-1', type: 'skip', emoji: '⏭️', name: 'Skip', cornerIcon: null },
-        { instanceId: 'discard-2', type: 'attack', emoji: '⚡', name: 'Attack', cornerIcon: null }
-      ];
-      window.GameState.setState(state);
+      window.GameState.mutate(function(state) {
+        state.discardPile = [
+          { instanceId: 'discard-1', type: 'skip', emoji: '⏭️', name: 'Skip', cornerIcon: null },
+          { instanceId: 'discard-2', type: 'attack', emoji: '⚡', name: 'Attack', cornerIcon: null }
+        ];
+      });
+      window.UIRenderer.forceRender();
     });
     await page.waitForTimeout(200);
 
@@ -799,12 +800,13 @@ test.describe('Five Different Combo', () => {
 
     // Add cards to discard pile
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      state.discardPile = [
-        { instanceId: 'discard-1', type: 'skip', emoji: '⏭️', name: 'Skip', cornerIcon: null },
-        { instanceId: 'discard-2', type: 'attack', emoji: '⚡', name: 'Attack', cornerIcon: null }
-      ];
-      window.GameState.setState(state);
+      window.GameState.mutate(function(state) {
+        state.discardPile = [
+          { instanceId: 'discard-1', type: 'skip', emoji: '⏭️', name: 'Skip', cornerIcon: null },
+          { instanceId: 'discard-2', type: 'attack', emoji: '⚡', name: 'Attack', cornerIcon: null }
+        ];
+      });
+      window.UIRenderer.forceRender();
     });
     await page.waitForTimeout(200);
 
@@ -936,9 +938,10 @@ test.describe('Player Elimination', () => {
 
     // Kill player 1 (an AI)
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      state.players[1].isAlive = false;
-      window.GameState.setState(state);
+      window.GameState.mutate(function(state) {
+        state.players[1].isAlive = false;
+      });
+      window.UIRenderer.forceRender();
     });
     await page.waitForTimeout(500);
 
@@ -965,13 +968,14 @@ test.describe('Player Elimination', () => {
 
     // Kill all AI players and trigger game over
     await page.evaluate(() => {
-      const state = window.GameState.getState();
-      state.players.forEach(p => {
-        if (!p.isHuman) p.isAlive = false;
+      window.GameState.mutate(function(state) {
+        state.players.forEach(p => {
+          if (!p.isHuman) p.isAlive = false;
+        });
+        state.gamePhase = 'game-over';
+        state.gameStatus = 'completed';
       });
-      state.gamePhase = 'game-over';
-      state.gameStatus = 'completed';
-      window.GameState.setState(state);
+      window.UIRenderer.forceRender();
     });
     await page.waitForTimeout(1000);
 
