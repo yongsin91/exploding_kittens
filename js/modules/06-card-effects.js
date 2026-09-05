@@ -143,7 +143,7 @@
 
     /**
      * Skip effect: End turn without drawing
-     * Can also cancel Attack effect
+     * Under Attack, Skip ends ONE turn — remaining turns still owed
      * @private
      */
     function handleSkip(playerId) {
@@ -156,21 +156,20 @@
             const wasUnderAttack = window.TurnEngine.isUnderAttack();
             
             if (wasUnderAttack) {
-                // Cancel attack
-                window.TurnEngine.deactivateAttack();
-                
+                // Skip ends one attack turn, remaining turns are still owed
+                // handleTurnEnd() will decrement attackTurnsRemaining and same player goes again if > 1
                 window.GameState.logAction({
                     type: 'CARD_PLAYED',
                     cardType: 'skip',
                     playerId,
                     playerName: player.name,
-                    description: `${player.name} played Skip and cancelled the Attack!`
+                    description: `${player.name} played Skip to end one attack turn.`
                 });
 
                 return {
                     success: true,
                     effectType: 'skip',
-                    cancelled: 'attack',
+                    cancelled: null,
                     requiresNopeResolution: true
                 };
             } else {

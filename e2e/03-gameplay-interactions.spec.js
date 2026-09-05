@@ -294,7 +294,7 @@ test.describe('Gameplay Interactions', () => {
     if (playable) {
       const cardEl = page.locator(`#player-hand .card[data-card-type="${playable}"]`).first();
       await cardEl.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(300);
 
       const handAfter = await page.locator('#player-hand .card').count();
       expect(handAfter).toBe(handBefore - 1);
