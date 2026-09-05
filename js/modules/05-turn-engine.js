@@ -31,7 +31,7 @@
      * @returns {string} Current phase
      */
     function getTurnPhase() {
-        return window.GameState.getStateProperty('turnPhase') || 'draw';
+        return window.GameState.getStateProperty('turnPhase') || 'action';
     }
 
     /**
@@ -40,7 +40,7 @@
      * @returns {boolean} Success status
      */
     function setTurnPhase(phase) {
-        const validPhases = ['draw', 'play', 'resolve', 'nope-window', 'defuse-placement', 'peek', 'end'];
+        const validPhases = ['action', 'nope-window', 'defuse-placement', 'peek'];
         
         if (!validPhases.includes(phase)) {
             console.error(`[Module 5] Invalid phase: ${phase}`);
@@ -85,7 +85,7 @@
             
             const success = window.GameState.setState({
                 currentPlayerIndex: playerId,
-                turnPhase: 'draw',
+                turnPhase: 'action',
                 cardsPlayed: [],
                 attackTurnsRemaining: currentAttackRemaining,
                 pendingAttackForNext: 0
@@ -249,7 +249,7 @@
                     window.Player.killPlayer(playerId);
                     
                     // Update state
-                    window.GameState.setState({ turnPhase: 'end' });
+                    window.GameState.setState({ turnPhase: 'action' });
                 }
             } else {
                 // Regular card — add to hand

@@ -46,7 +46,7 @@
             discardPile: [], // Array of card instances
             
             // Current turn state
-            turnPhase: 'draw', // draw, play, resolve
+            turnPhase: 'action', // draw, play, resolve
             cardsPlayed: [], // Cards played this turn
             attackTurnsRemaining: 0,  // 0 = no attack, >0 = turns remaining for current player
             pendingAttackForNext: 0,    // Turns to pass to next player when their turn starts

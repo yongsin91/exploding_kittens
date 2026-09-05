@@ -362,7 +362,7 @@
         var turnPhase = state.turnPhase;
         var nopeActive = state.nopeWindowActive;
         var modalActive = state.activeModal !== null;
-        var canPlay = (turnPhase === 'draw' || turnPhase === 'play') && !nopeActive && !modalActive;
+        var canPlay = (turnPhase === 'action') && !nopeActive && !modalActive;
 
         player.hand.forEach(function(card, index) {
             var cardEl = renderCard(card, {
@@ -442,7 +442,7 @@
         // Draw button: enabled during draw/play phase, not during nope/modal/defuse
         if (dom.drawBtn) {
             var canDraw = isCurrentPlayerHuman
-                && (phase === 'draw' || phase === 'play')
+                && (phase === 'action')
                 && !nopeActive
                 && !modalActive;
             dom.drawBtn.disabled = !canDraw;
@@ -452,7 +452,7 @@
         // (player can end turn without playing cards — drawing is mandatory to end)
         if (dom.endTurnBtn) {
             var canEndTurn = isCurrentPlayerHuman
-                && (phase === 'draw' || phase === 'play')
+                && (phase === 'action')
                 && !nopeActive
                 && !modalActive;
             dom.endTurnBtn.disabled = !canEndTurn;

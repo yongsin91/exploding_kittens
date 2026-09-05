@@ -130,7 +130,7 @@ async function setupControlledGame(page, options = {}) {
         });
       }
 
-      state.turnPhase = 'draw';
+      state.turnPhase = 'action';
       state.activeModal = null;
       state.nopeWindowActive = false;
     });

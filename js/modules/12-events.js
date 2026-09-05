@@ -197,10 +197,10 @@
             handleEffectUI(result, player.id);
         }
 
-        // Update turn phase to play
-        if (window.GameState.getState().turnPhase === 'draw') {
-            window.TurnEngine.setTurnPhase('play');
-        }
+        // Track played card in state
+        window.GameState.mutate(function(state) {
+            state.cardsPlayed.push(cardInstanceId);
+        });
     }
 
     /**
@@ -274,15 +274,14 @@
             return;
         }
 
-        // If in draw phase (no cards played), must draw a card to end turn
+        // If no cards played this turn, must draw a card to end turn
         var state = window.GameState.getState();
-        if (state.turnPhase === 'draw') {
+        if (state.cardsPlayed.length === 0) {
             handleDrawClick();
             return;
         }
 
-        // In play phase — end turn directly (cards already played)
-        // GameFlow.handleTurnEnd handles player advancement
+        // Cards have been played — end turn directly
         if (window.GameFlow && typeof window.GameFlow.handleTurnEnd === 'function') {
             window.GameFlow.handleTurnEnd();
         } else {
