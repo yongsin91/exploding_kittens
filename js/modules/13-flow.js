@@ -79,7 +79,9 @@
         deck = window.shuffle(deck);
 
         // 8. Set initial game state with players (so Player module can find them)
-        var firstPlayerIndex = Math.floor(Math.random() * players.length);
+        // In AI mode, always make the human player (index 0) go first for deterministic UX
+        // In hot-seat mode, randomize the first player
+        var firstPlayerIndex = config.gameMode === 'ai' ? 0 : Math.floor(Math.random() * players.length);
         window.GameState.setState({
             players: players,
             currentPlayerIndex: firstPlayerIndex,
