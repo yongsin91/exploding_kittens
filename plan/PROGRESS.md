@@ -38,9 +38,9 @@ Task 17 (integration) — depends on all
 | 1 | task-1-state-mgmt | ✅ DONE | 24b67fa | Foundational, merged to main |
 | 2 | task-2-gamephase | ✅ DONE | f2a184e | Merged to main |
 | 3 | task-3-shuffle | ✅ DONE | 28c6aae | Merged to main |
-| 4 | task-4-attack | PENDING | - | |
-| 5 | task-5-skip-attack | PENDING | - | |
-| 6 | task-6-five-diff | PENDING | - | |
+| 4 | task-4-attack | ✅ DONE | 1f163dc | Merged to main |
+| 5 | task-5-skip-attack | ✅ DONE | 7a25855 | Merged to main |
+| 6 | task-6-five-diff | ✅ DONE | 1370dcc | Merged to main |
 | 7 | task-7-defuse | PENDING | - | |
 | 8 | task-8-see-future | PENDING | - | |
 | 9 | task-9-ai-nope | PENDING | - | |
@@ -55,7 +55,7 @@ Task 17 (integration) — depends on all
 
 ## Code Reviews
 - Review 1 (after Tasks 1-3): ✅ PASSED — see plan/CODE-REVIEW-1.md
-- Review 2 (after Tasks 4-6): PENDING
+- Review 2 (after Tasks 4-6): ✅ PASSED — see plan/CODE-REVIEW-2.md
 - Review 3 (after Tasks 7-9): PENDING
 - Review 4 (after Tasks 10-12): PENDING
 - Review 5 (after Tasks 13-15): PENDING
