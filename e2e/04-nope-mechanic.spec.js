@@ -165,15 +165,21 @@ test.describe('Nope Mechanic', () => {
     if (nopeable) {
       const cardEl = page.locator(`#player-hand .card[data-card-type="${nopeable}"]`).first();
       await cardEl.click();
-      await page.waitForTimeout(2000);
+
+      // Wait for nope to auto-resolve (AI check ~1.5s + auto-close)
+      const nopeModal = page.locator('#nope-modal');
+      for (let i = 0; i < 15; i++) {
+        await page.waitForTimeout(300);
+        const isActive = await nopeModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
+        if (!isActive) break;
+      }
+      await page.waitForTimeout(500);
 
       // After nope resolution, game should still be functional
-      // Either it's still human's turn or AI's turn
       const gameScreen = page.locator('#game-screen');
       await expect(gameScreen).toHaveClass(/screen--active/);
 
       // No modals should be stuck open (except possibly during AI turn)
-      const nopeModal = page.locator('#nope-modal');
       await expect(nopeModal).not.toHaveClass(/modal--active/);
     }
   });
