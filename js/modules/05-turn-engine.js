@@ -207,9 +207,6 @@
                 return null;
             }
 
-            // Add to player's hand
-            window.Player.addCardToHand(playerId, drawnCard);
-
             // Log action
             window.GameState.logAction({
                 type: 'CARD_DRAWN',
@@ -220,7 +217,7 @@
                 description: `${player.name} drew ${drawnCard.emoji} ${drawnCard.name}`
             });
 
-            // Handle Exploding Kitten
+            // Handle Exploding Kitten — do NOT add to hand
             if (drawnCard.type === 'exploding_kitten') {
                 console.log(`[Module 5] ⚠️ EXPLODING KITTEN DRAWN by ${player.name}`);
 
@@ -230,7 +227,7 @@
                 if (defuseCard) {
                     console.log(`[Module 5] ${player.name} has Defuse - entering defuse placement`);
                     
-                    // Open defuse modal / enter defuse phase
+                    // Open defuse modal — EK held in modalData, NOT in hand
                     window.GameState.setState({
                         turnPhase: 'defuse-placement',
                         activeModal: 'defuse-modal',
@@ -243,8 +240,7 @@
                 } else {
                     console.log(`[Module 5] ${player.name} has no Defuse - ELIMINATED`);
                     
-                    // Remove from hand and discard
-                    window.Player.removeCardFromHand(playerId, drawnCard.instanceId);
+                    // Move EK to discard (it was never in hand)
                     window.GameState.mutate(function(state) {
                         state.discardPile.push(drawnCard);
                     });
@@ -256,7 +252,8 @@
                     window.GameState.setState({ turnPhase: 'end' });
                 }
             } else {
-                // Regular card - deck state already updated via mutate above
+                // Regular card — add to hand
+                window.Player.addCardToHand(playerId, drawnCard);
             }
 
             return { success: true, card: drawnCard };
