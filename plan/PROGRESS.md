@@ -50,16 +50,16 @@ Task 17 (integration) — depends on all
 | 13 | task-13-nope-autoclose | ✅ DONE | 4ec8eb8 | Merged to main |
 | 14 | task-14-turn-phase | ✅ DONE | 7ce1e28 | Merged to main |
 | 15 | task-15-ai-multicard | ✅ DONE | 4630868 | Merged to main |
-| 16 | task-16-e2e-tests | PENDING | - | |
-| 17 | task-17-integration | PENDING | - | |
+| 16 | task-16-e2e-tests | ✅ DONE | 08b44b3 | Merged to main |
+| 17 | task-17-integration | ✅ DONE | 1f2b30c | Merged to main |
 
 ## Code Reviews
 - Review 1 (after Tasks 1-3): ✅ PASSED — see plan/CODE-REVIEW-1.md
 - Review 2 (after Tasks 4-6): ✅ PASSED — see plan/CODE-REVIEW-2.md
 - Review 3 (after Tasks 7-9): ✅ PASSED — see plan/CODE-REVIEW-3.md
 - Review 4 (after Tasks 10-15): ✅ PASSED — see plan/CODE-REVIEW-4.md
-- Review 5 (after Tasks 13-15): PENDING
-- Review 6 (after Tasks 16-17): PENDING
+- Review 5 (after Tasks 16-17): ✅ PASSED — see plan/CODE-REVIEW-5.md
+- Review 6 (after Tasks 16-17): N/A (merged into Review 5)
 
 ## Backlog / Issues
 (none yet)
