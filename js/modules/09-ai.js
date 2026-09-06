@@ -354,19 +354,12 @@
     }
 
     /**
-     * Get next alive player.
+     * Get next alive player after a given player.
+     * Uses shared Player.getNextAlivePlayerAfter for consistency.
      * @private
      */
     function getNextPlayer(playerId, state) {
-        var players = state.players;
-        var idx = playerId;
-        for (var i = 0; i < players.length; i++) {
-            idx = (idx + 1) % players.length;
-            if (players[idx] && players[idx].isAlive) {
-                return players[idx];
-            }
-        }
-        return null;
+        return window.Player.getNextAlivePlayerAfter(playerId);
     }
 
     // ========== NOPE DECISION ==========
