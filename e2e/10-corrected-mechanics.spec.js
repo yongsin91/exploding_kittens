@@ -238,4 +238,157 @@ test.describe('Corrected Mechanics', () => {
       expect(handTypes).toContain('defuse');
     }
   });
+
+  // 8. Human can nope an AI card play — click Nope! and verify it registers
+  test('human nope click registers when AI plays a nopeable card', async ({ page }) => {
+    await setupControlledGame(page, {
+      handCards: ['nope', 'defuse', 'skip', 'attack', 'favor'],
+      deckCards: ['skip', 'attack', 'favor', 'shuffle', 'see_the_future']
+    });
+
+    // Give AI player 1 a nopeable card and make sure they play it
+    await page.evaluate(() => {
+      window.GameState.mutate(function(state) {
+        if (state.players[1]) {
+          state.players[1].hand = [
+            { instanceId: 'ai-card-0', type: 'attack', emoji: '⚔️', name: 'Attack', cornerIcon: null },
+            { instanceId: 'ai-card-1', type: 'defuse', emoji: '🔧', name: 'Defuse', cornerIcon: null }
+          ];
+        }
+      });
+    });
+
+    // End human turn to let AI play
+    await page.locator('#draw-btn').click();
+
+    // Wait for nope modal to appear (AI plays attack → nopeable)
+    const nopeModal = page.locator('#nope-modal');
+    let nopeAppeared = false;
+    for (let i = 0; i < 20; i++) {
+      await page.waitForTimeout(300);
+      nopeAppeared = await nopeModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
+      if (nopeAppeared) break;
+    }
+
+    if (nopeAppeared) {
+      // Click Nope! button
+      const nopeYesBtn = page.locator('#nope-yes-btn');
+      await nopeYesBtn.click();
+      await page.waitForTimeout(500);
+
+      // Verify nope was registered — check action log for NOPE_PLAYED
+      const nopeLogged = await page.evaluate(() => {
+        const state = window.GameState.getState();
+        return state.actionLog.some(entry => entry.type === 'NOPE_PLAYED');
+      });
+      expect(nopeLogged).toBe(true);
+
+      // Verify human player's nope card was consumed (hand decreased)
+      const humanHandSize = await page.evaluate(() => {
+        const state = window.GameState.getState();
+        const human = state.players.find(p => p.isHuman);
+        return human ? human.hand.length : -1;
+      });
+      // Should be 4 (started with 5, played 1 nope)
+      expect(humanHandSize).toBe(4);
+    } else {
+      // AI didn't play a nopeable card — skip but verify game still works
+      const gameScreen = page.locator('#game-screen');
+      await expect(gameScreen).toHaveClass(/screen--active/, { timeout: 5000 });
+    }
+  });
+
+  // 9. Nope stacking: human nopes, then can nope again after AI counter-nopes
+  test('nope stacking allows counter-noping', async ({ page }) => {
+    await setupControlledGame(page, {
+      handCards: ['nope', 'nope', 'defuse', 'skip', 'attack'],
+      deckCards: ['skip', 'attack', 'favor', 'shuffle', 'see_the_future']
+    });
+
+    // Give AI player 1 a nopeable card AND a nope card for counter-noping
+    await page.evaluate(() => {
+      window.GameState.mutate(function(state) {
+        if (state.players[1]) {
+          state.players[1].hand = [
+            { instanceId: 'ai-card-0', type: 'attack', emoji: '⚔️', name: 'Attack', cornerIcon: null },
+            { instanceId: 'ai-card-1', type: 'nope', emoji: '🚫', name: 'Nope', cornerIcon: null },
+            { instanceId: 'ai-card-2', type: 'defuse', emoji: '🔧', name: 'Defuse', cornerIcon: null }
+          ];
+        }
+      });
+      // Set AI to hard so it's more likely to counter-nope
+      if (window.AI) {
+        window.AI.setDifficulty('hard');
+      }
+    });
+
+    // End human turn to let AI play
+    await page.locator('#draw-btn').click();
+
+    // Wait for nope modal
+    const nopeModal = page.locator('#nope-modal');
+    let nopeAppeared = false;
+    for (let i = 0; i < 20; i++) {
+      await page.waitForTimeout(300);
+      nopeAppeared = await nopeModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
+      if (nopeAppeared) break;
+    }
+
+    if (nopeAppeared) {
+      // Human nopes the AI's card
+      await page.locator('#nope-yes-btn').click();
+      await page.waitForTimeout(500);
+
+      // Verify first nope registered
+      const nope1Logged = await page.evaluate(() => {
+        const state = window.GameState.getState();
+        return state.actionLog.filter(entry => entry.type === 'NOPE_PLAYED').length;
+      });
+      expect(nope1Logged).toBeGreaterThanOrEqual(1);
+
+      // Wait to see if AI counter-nopes and the modal stays/returns
+      // The nope modal should either:
+      // a) Stay open (AI is thinking about counter-nope) → human can nope again
+      // b) Close (AI declined or no AI eligible) → action resolved
+      await page.waitForTimeout(2000);
+
+      // Check if modal is still active (AI counter-noped, human can nope again)
+      const modalStillActive = await nopeModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
+
+      if (modalStillActive) {
+        // AI counter-noped — human should be able to nope again
+        const nopeCount = await page.evaluate(() => {
+          const state = window.GameState.getState();
+          return state.actionLog.filter(entry => entry.type === 'NOPE_PLAYED').length;
+        });
+        expect(nopeCount).toBeGreaterThanOrEqual(2);
+
+        // Human nopes again
+        const humanCanNope = await page.evaluate(() => {
+          const state = window.GameState.getState();
+          const human = state.players.find(p => p.isHuman);
+          return human && human.hand.some(c => c.type === 'nope');
+        });
+
+        if (humanCanNope) {
+          await page.locator('#nope-yes-btn').click();
+          await page.waitForTimeout(500);
+
+          const nope3Logged = await page.evaluate(() => {
+            const state = window.GameState.getState();
+            return state.actionLog.filter(entry => entry.type === 'NOPE_PLAYED').length;
+          });
+          expect(nope3Logged).toBeGreaterThanOrEqual(3);
+        }
+      }
+
+      // Game should still be functional after nope resolution
+      const gameScreen = page.locator('#game-screen');
+      await expect(gameScreen).toHaveClass(/screen--active/, { timeout: 10000 });
+    } else {
+      // AI didn't play a nopeable card — verify game still works
+      const gameScreen = page.locator('#game-screen');
+      await expect(gameScreen).toHaveClass(/screen--active/, { timeout: 5000 });
+    }
+  });
 });

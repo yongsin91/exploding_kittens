@@ -71,14 +71,19 @@
         let state = window.GameState.getState();
         let player = state.players[playerId];
 
+        let nopeWindowOpened = false;
+
         if (decision.combo) {
-            executeAICombo(playerId, decision, player);
+            nopeWindowOpened = executeAICombo(playerId, decision, player);
         } else {
-            executeAISingleCard(playerId, decision, player);
+            nopeWindowOpened = executeAISingleCard(playerId, decision, player);
         }
 
-        // After playing (non-nopeable, non-turn-ending), check if AI wants to play more
-        scheduleNextAIAction(playerId);
+        // Only schedule next action if no nope window was opened
+        // (the nope window's onComplete callback handles scheduling)
+        if (!nopeWindowOpened) {
+            scheduleNextAIAction(playerId);
+        }
     }
 
     /**
@@ -91,7 +96,7 @@
         }).filter(Boolean);
 
         let comboInfo = window.Combo.detectCombo(cards);
-        if (!comboInfo) return;
+        if (!comboInfo) return false;
 
         window.Combo.removeComboCards(playerId, decision.comboCards);
         window.GameState.mutate(function(s) {
@@ -116,7 +121,9 @@
                     scheduleNextAIAction(playerId);
                 }
             });
+            return true;  // Nope window was opened
         }
+        return false;  // No nope window
     }
 
     /**
@@ -125,7 +132,7 @@
      */
     function executeAISingleCard(playerId, decision, player) {
         let card = player.hand.find(function(c) { return c.instanceId === decision.cardInstanceId; });
-        if (!card) return;
+        if (!card) return false;
 
         window.Player.removeCardFromHand(playerId, decision.cardInstanceId);
         window.GameState.mutate(function(s) {
@@ -161,6 +168,7 @@
                     }
                 }
             });
+            return true;  // Nope window was opened
         } else {
             // Not nopeable — execute effect directly
             handleEffectPost(effectResult, playerId);
@@ -168,6 +176,7 @@
             if (card.type === 'skip' || card.type === 'attack') {
                 window.GameFlow.handleTurnEnd();
             }
+            return false;  // No nope window
         }
     }
 
