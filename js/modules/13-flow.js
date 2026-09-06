@@ -28,8 +28,8 @@
 
     // ========== STATE ==========
 
-    var gameConfig = null;
-    var isInitialized = false;
+    let gameConfig = null;
+    let isInitialized = false;
 
     // ========== GAME INITIALIZATION ==========
 
@@ -60,20 +60,20 @@
         }
 
         // 4. Create players
-        var players = [];
-        for (var i = 0; i < config.playerCount; i++) {
-            var isAI = config.gameMode === 'ai' && i > 0;
-            var name = config.playerNames[i] || (isAI ? 'AI-' + i : 'Player ' + (i + 1));
+        let players = [];
+        for (let i = 0; i < config.playerCount; i++) {
+            let isAI = config.gameMode === 'ai' && i > 0;
+            let name = config.playerNames[i] || (isAI ? 'AI-' + i : 'Player ' + (i + 1));
             players.push(window.Player.createPlayer(i, name, isAI));
         }
 
         // 5. Create deck
-        var deck = window.createDeck(config.playerCount);
+        let deck = window.createDeck(config.playerCount);
 
         // 6. Remove Exploding Kittens and Defuses for initial dealing
-        var ekResult = window.removeExplodingKittens(deck);
+        let ekResult = window.removeExplodingKittens(deck);
         deck = ekResult.cleanDeck;
-        var defuseResult = window.removeDefuses(deck);
+        let defuseResult = window.removeDefuses(deck);
         deck = defuseResult.cleanDeck;
 
         // 7. Shuffle clean deck
@@ -82,7 +82,7 @@
         // 8. Set initial game state with players (so Player module can find them)
         // In AI mode, always make the human player (index 0) go first for deterministic UX
         // In hot-seat mode, randomize the first player
-        var firstPlayerIndex = config.gameMode === 'ai' ? 0 : Math.floor(Math.random() * players.length);
+        let firstPlayerIndex = config.gameMode === 'ai' ? 0 : Math.floor(Math.random() * players.length);
         window.GameState.setState({
             players: players,
             currentPlayerIndex: firstPlayerIndex,
@@ -103,8 +103,8 @@
         });
 
         // 9. Deal 4 cards + 1 Defuse to each player
-        for (var p = 0; p < players.length; p++) {
-            for (var c = 0; c < 4; c++) {
+        for (let p = 0; p < players.length; p++) {
+            for (let c = 0; c < 4; c++) {
                 if (deck.length > 0) {
                     window.Player.addCardToHand(p, deck.pop());
                 }
@@ -116,12 +116,12 @@
         }
 
         // 10. Insert Exploding Kittens (playerCount - 1)
-        var ekCount = config.playerCount - 1;
-        var eksToInsert = ekResult.removedKittens.slice(0, ekCount);
+        let ekCount = config.playerCount - 1;
+        let eksToInsert = ekResult.removedKittens.slice(0, ekCount);
         deck = deck.concat(eksToInsert);
 
         // 11. Insert remaining Defuses (from removed pool)
-        var remainingDefuses = defuseResult.removedDefuses;
+        let remainingDefuses = defuseResult.removedDefuses;
         deck = deck.concat(remainingDefuses);
 
         // 12. Shuffle final deck
@@ -163,8 +163,8 @@
      * @param {number} playerId
      */
     function startTurn(playerId) {
-        var state = window.GameState.getState();
-        var player = state.players[playerId];
+        let state = window.GameState.getState();
+        let player = state.players[playerId];
 
         if (!player || !player.isAlive) {
             // Skip dead players
@@ -196,7 +196,7 @@
         }
 
         // Advance to next player
-        var nextIndex = window.Player.getNextAlivePlayerIndex();
+        let nextIndex = window.Player.getNextAlivePlayerIndex();
         if (nextIndex === -1) {
             console.log('[GameFlow] No alive players found');
             endGame(null);
@@ -204,7 +204,7 @@
         }
 
         // Handle attack turns — same player goes again if they still owe turns
-        var state = window.GameState.getState();
+        let state = window.GameState.getState();
         if (state.attackTurnsRemaining > 1) {
             // Current player still has attack turns remaining
             window.GameState.setState({
@@ -229,9 +229,9 @@
      * @returns {boolean} true if game over
      */
     function checkWinCondition() {
-        var alivePlayers = window.Player.getAlivePlayers();
+        let alivePlayers = window.Player.getAlivePlayers();
         if (alivePlayers.length <= 1) {
-            var winner = alivePlayers.length === 1 ? alivePlayers[0] : null;
+            let winner = alivePlayers.length === 1 ? alivePlayers[0] : null;
             endGame(winner);
             return true;
         }
@@ -267,8 +267,8 @@
      * @param {number} playerId
      */
     function handlePlayerDeath(playerId) {
-        var state = window.GameState.getState();
-        var player = state.players[playerId];
+        let state = window.GameState.getState();
+        let player = state.players[playerId];
 
         window.GameState.logAction({
             type: 'PLAYER_ELIMINATED',
@@ -321,7 +321,7 @@
         if (!effectResult || !effectResult.success) return;
 
         if (effectResult.requiresNopeResolution) {
-            var resolver = function() {
+            let resolver = function() {
                 if (window.AIController) {
                     window.AIController.handleEffectPost(effectResult, playerId);
                 } else {

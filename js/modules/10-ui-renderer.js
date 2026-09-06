@@ -122,14 +122,14 @@
             return document.createElement('div');
         }
 
-        var clickable = options.clickable || false;
-        var selected = options.selected || false;
-        var disabled = options.disabled || false;
-        var showCorner = options.showCorner !== false;
-        var onClick = options.onClick || null;
+        let clickable = options.clickable || false;
+        let selected = options.selected || false;
+        let disabled = options.disabled || false;
+        let showCorner = options.showCorner !== false;
+        let onClick = options.onClick || null;
 
-        var cardEl = document.createElement('div');
-        var cardClass = getCardClass(card.type);
+        let cardEl = document.createElement('div');
+        let cardClass = getCardClass(card.type);
         cardEl.classList.add('card');
         cardEl.classList.add('card--' + cardClass);
         cardEl.dataset.instanceId = card.instanceId || '';
@@ -139,25 +139,25 @@
         if (disabled) cardEl.classList.add('card--disabled');
 
         // Emoji
-        var emojiEl = document.createElement('span');
+        let emojiEl = document.createElement('span');
         emojiEl.className = 'card-emoji';
         emojiEl.textContent = card.emoji || '🃏';
         cardEl.appendChild(emojiEl);
 
         // Name
-        var nameEl = document.createElement('span');
+        let nameEl = document.createElement('span');
         nameEl.className = 'card-name';
         nameEl.textContent = card.name || card.type || 'Unknown';
         cardEl.appendChild(nameEl);
 
         // Corner icons for cat cards
         if (showCorner && card.cornerIcon) {
-            var cornerTL = document.createElement('span');
+            let cornerTL = document.createElement('span');
             cornerTL.className = 'card-corner card-corner--tl';
             cornerTL.textContent = card.emoji || '';
             cardEl.appendChild(cornerTL);
 
-            var cornerBR = document.createElement('span');
+            let cornerBR = document.createElement('span');
             cornerBR.className = 'card-corner card-corner--br';
             cornerBR.textContent = card.emoji || '';
             cardEl.appendChild(cornerBR);
@@ -185,7 +185,7 @@
      * @returns {HTMLElement} Card back div
      */
     function renderCardBack() {
-        var el = document.createElement('div');
+        let el = document.createElement('div');
         el.classList.add('card');
         el.classList.add('card-back');
         el.textContent = '🂠';
@@ -237,7 +237,7 @@
      */
     function updateCurrentPlayerName(state) {
         if (dom.currentPlayerName) {
-            var player = state.players[state.currentPlayerIndex];
+            let player = state.players[state.currentPlayerIndex];
             dom.currentPlayerName.textContent = player
                 ? player.name + "'s Turn"
                 : 'Waiting...';
@@ -264,11 +264,11 @@
         dom.discardPile.innerHTML = '';
 
         if (state.discardPile.length > 0) {
-            var topCard = state.discardPile[state.discardPile.length - 1];
-            var cardEl = renderCard(topCard, { disabled: true });
+            let topCard = state.discardPile[state.discardPile.length - 1];
+            let cardEl = renderCard(topCard, { disabled: true });
             dom.discardPile.appendChild(cardEl);
         } else {
-            var empty = document.createElement('span');
+            let empty = document.createElement('span');
             empty.className = 'discard-empty';
             empty.textContent = 'Empty';
             dom.discardPile.appendChild(empty);
@@ -284,13 +284,13 @@
 
         dom.opponentsArea.innerHTML = '';
 
-        var currentPlayerId = state.currentPlayerIndex;
+        let currentPlayerId = state.currentPlayerIndex;
 
         state.players.forEach(function(player, index) {
             // Skip current player — they're shown in the hand area
             if (index === currentPlayerId) return;
 
-            var panel = document.createElement('div');
+            let panel = document.createElement('div');
             panel.className = 'opponent-panel';
             panel.dataset.playerId = player.id;
 
@@ -299,7 +299,7 @@
             }
 
             // Player name
-            var nameEl = document.createElement('div');
+            let nameEl = document.createElement('div');
             nameEl.className = 'opponent-name';
             nameEl.textContent = player.name + (player.isAI ? ' 🤖' : '');
             if (!player.isAlive) {
@@ -308,16 +308,16 @@
             panel.appendChild(nameEl);
 
             // Card count (face-down cards)
-            var cardCountEl = document.createElement('div');
+            let cardCountEl = document.createElement('div');
             cardCountEl.className = 'opponent-card-count';
             cardCountEl.textContent = player.hand.length + ' cards';
 
             // Mini card backs
-            var cardsVisual = document.createElement('div');
+            let cardsVisual = document.createElement('div');
             cardsVisual.className = 'opponent-cards-visual';
-            var maxVisible = Math.min(player.hand.length, 5);
-            for (var i = 0; i < maxVisible; i++) {
-                var back = document.createElement('span');
+            let maxVisible = Math.min(player.hand.length, 5);
+            for (let i = 0; i < maxVisible; i++) {
+                let back = document.createElement('span');
                 back.className = 'card-back-mini';
                 back.textContent = '🂠';
                 cardsVisual.appendChild(back);
@@ -327,7 +327,7 @@
 
             // Status indicator
             if (!player.isAlive) {
-                var status = document.createElement('div');
+                let status = document.createElement('div');
                 status.className = 'opponent-status opponent-status--dead';
                 status.textContent = 'Exploded';
                 panel.appendChild(status);
@@ -346,26 +346,26 @@
 
         dom.playerHand.innerHTML = '';
 
-        var player = state.players[state.currentPlayerIndex];
+        let player = state.players[state.currentPlayerIndex];
         if (!player || !player.isAlive) return;
 
         // If current player is AI, don't render their cards face-up
         // Show a waiting message instead
         if (player.isAI) {
-            var waitMsg = document.createElement('p');
+            let waitMsg = document.createElement('p');
             waitMsg.className = 'hand-empty';
             waitMsg.textContent = '🤖 ' + player.name + ' is thinking...';
             dom.playerHand.appendChild(waitMsg);
             return;
         }
 
-        var turnPhase = state.turnPhase;
-        var nopeActive = state.nopeWindowActive;
-        var modalActive = state.activeModal !== null;
-        var canPlay = (turnPhase === 'action') && !nopeActive && !modalActive;
+        let turnPhase = state.turnPhase;
+        let nopeActive = state.nopeWindowActive;
+        let modalActive = state.activeModal !== null;
+        let canPlay = (turnPhase === 'action') && !nopeActive && !modalActive;
 
         player.hand.forEach(function(card, index) {
-            var cardEl = renderCard(card, {
+            let cardEl = renderCard(card, {
                 clickable: canPlay,
                 disabled: !canPlay,
                 onClick: function(clickedCard) {
@@ -377,9 +377,9 @@
             });
 
             // Fan effect — slight rotation per card
-            var totalCards = player.hand.length;
-            var maxRotation = 15;
-            var rotation = totalCards > 1
+            let totalCards = player.hand.length;
+            let maxRotation = 15;
+            let rotation = totalCards > 1
                 ? (index - (totalCards - 1) / 2) * (maxRotation / Math.max(totalCards - 1, 1))
                 : 0;
             cardEl.style.transform = 'rotate(' + rotation + 'deg)';
@@ -389,7 +389,7 @@
 
         // If hand is empty, show message
         if (player.hand.length === 0) {
-            var emptyMsg = document.createElement('p');
+            let emptyMsg = document.createElement('p');
             emptyMsg.className = 'hand-empty';
             emptyMsg.textContent = 'No cards in hand — draw to end your turn';
             dom.playerHand.appendChild(emptyMsg);
@@ -405,18 +405,18 @@
 
         dom.actionLog.innerHTML = '';
 
-        var log = state.actionLog || [];
-        var recentEntries = log.slice(-20);
+        let log = state.actionLog || [];
+        let recentEntries = log.slice(-20);
 
         recentEntries.forEach(function(entry) {
-            var logEl = document.createElement('div');
+            let logEl = document.createElement('div');
             logEl.className = 'log-entry';
 
-            var time = entry.timestamp
+            let time = entry.timestamp
                 ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
                 : '';
 
-            var playerLabel = entry.playerName ? '[' + entry.playerName + '] ' : '';
+            let playerLabel = entry.playerName ? '[' + entry.playerName + '] ' : '';
 
             logEl.textContent = time + ' ' + playerLabel + (entry.description || '');
             dom.actionLog.appendChild(logEl);
@@ -431,17 +431,17 @@
      * @private
      */
     function updateActionButtons(state) {
-        var player = state.players[state.currentPlayerIndex];
+        let player = state.players[state.currentPlayerIndex];
         if (!player) return;
 
-        var isCurrentPlayerHuman = player.isHuman;
-        var phase = state.turnPhase;
-        var nopeActive = state.nopeWindowActive;
-        var modalActive = state.activeModal !== null;
+        let isCurrentPlayerHuman = player.isHuman;
+        let phase = state.turnPhase;
+        let nopeActive = state.nopeWindowActive;
+        let modalActive = state.activeModal !== null;
 
         // Draw button: enabled during draw/play phase, not during nope/modal/defuse
         if (dom.drawBtn) {
-            var canDraw = isCurrentPlayerHuman
+            let canDraw = isCurrentPlayerHuman
                 && (phase === 'action')
                 && !nopeActive
                 && !modalActive;
@@ -451,7 +451,7 @@
         // End turn button: enabled during draw or play phase
         // (player can end turn without playing cards — drawing is mandatory to end)
         if (dom.endTurnBtn) {
-            var canEndTurn = isCurrentPlayerHuman
+            let canEndTurn = isCurrentPlayerHuman
                 && (phase === 'action')
                 && !nopeActive
                 && !modalActive;
@@ -467,15 +467,15 @@
      * @private
      */
     function renderModals(state) {
-        var activeModal = state.activeModal;
-        var allModals = [
+        let activeModal = state.activeModal;
+        let allModals = [
             'peek-modal', 'defuse-modal', 'favor-target-modal', 'favor-give-modal',
             'combo-modal', 'nope-modal', 'three-kind-modal', 'discard-browser-modal'
         ];
 
         // Close all modals first
         allModals.forEach(function(modalId) {
-            var el = document.getElementById(modalId);
+            let el = document.getElementById(modalId);
             if (el && el.classList.contains('modal--active') && modalId !== activeModal) {
                 el.classList.remove('modal--active');
                 el.setAttribute('aria-hidden', 'true');
@@ -484,7 +484,7 @@
 
         // Open active modal and populate content
         if (activeModal && allModals.indexOf(activeModal) !== -1) {
-            var el = document.getElementById(activeModal);
+            let el = document.getElementById(activeModal);
             if (el) {
                 el.classList.add('modal--active');
                 el.setAttribute('aria-hidden', 'false');
@@ -528,9 +528,9 @@
         if (!dom.peekCards) return;
         dom.peekCards.innerHTML = '';
 
-        var cards = (state.modalData && state.modalData.peekedCards) || [];
+        let cards = (state.modalData && state.modalData.peekedCards) || [];
         cards.forEach(function(card) {
-            var cardEl = renderCard(card, { disabled: true });
+            let cardEl = renderCard(card, { disabled: true });
             dom.peekCards.appendChild(cardEl);
         });
     }
@@ -543,14 +543,14 @@
         if (!dom.defuseDeckPicker) return;
         dom.defuseDeckPicker.innerHTML = '';
 
-        var deckSize = state.drawPile.length;
+        let deckSize = state.drawPile.length;
 
         // Create position selector
-        var label = document.createElement('p');
+        let label = document.createElement('p');
         label.textContent = 'Choose a position (0 = top, ' + deckSize + ' = bottom):';
         dom.defuseDeckPicker.appendChild(label);
 
-        var slider = document.createElement('input');
+        let slider = document.createElement('input');
         slider.type = 'range';
         slider.id = 'defuse-position-slider';
         slider.min = '0';
@@ -559,7 +559,7 @@
         slider.className = 'slider';
         dom.defuseDeckPicker.appendChild(slider);
 
-        var valueDisplay = document.createElement('span');
+        let valueDisplay = document.createElement('span');
         valueDisplay.className = 'slider-value';
         valueDisplay.textContent = slider.value;
         slider.addEventListener('input', function() {
@@ -579,14 +579,14 @@
         if (!dom.favorTargetList) return;
         dom.favorTargetList.innerHTML = '';
 
-        var data = state.modalData || {};
-        var playerId = data.playerId;
-        var alivePlayers = (state.players || []).filter(function(p) {
+        let data = state.modalData || {};
+        let playerId = data.playerId;
+        let alivePlayers = (state.players || []).filter(function(p) {
             return p.isAlive && p.id !== playerId;
         });
 
         alivePlayers.forEach(function(player) {
-            var btn = document.createElement('button');
+            let btn = document.createElement('button');
             btn.className = 'btn btn--secondary target-btn';
             btn.textContent = player.name + ' (' + player.hand.length + ' cards)';
             btn.dataset.playerId = player.id;
@@ -599,7 +599,7 @@
         });
 
         if (alivePlayers.length === 0) {
-            var msg = document.createElement('p');
+            let msg = document.createElement('p');
             msg.textContent = 'No players available to target.';
             dom.favorTargetList.appendChild(msg);
         }
@@ -613,24 +613,24 @@
         if (!dom.favorGiveCards) return;
         dom.favorGiveCards.innerHTML = '';
 
-        var data = state.modalData || {};
-        var targetPlayerId = data.targetPlayerId;
-        var targetPlayer = targetPlayerId !== undefined ? state.players[targetPlayerId] : null;
+        let data = state.modalData || {};
+        let targetPlayerId = data.targetPlayerId;
+        let targetPlayer = targetPlayerId !== undefined ? state.players[targetPlayerId] : null;
 
         if (!targetPlayer) {
-            var msg = document.createElement('p');
+            let msg = document.createElement('p');
             msg.textContent = 'No player found.';
             dom.favorGiveCards.appendChild(msg);
             return;
         }
 
-        var titleEl = document.getElementById('favor-give-title');
+        let titleEl = document.getElementById('favor-give-title');
         if (titleEl) {
             titleEl.textContent = targetPlayer.name + ': Choose a Card to Give';
         }
 
         targetPlayer.hand.forEach(function(card) {
-            var cardEl = renderCard(card, {
+            let cardEl = renderCard(card, {
                 clickable: true,
                 onClick: function(clickedCard) {
                     if (window.Events && typeof window.Events.handleFavorGive === 'function') {
@@ -642,7 +642,7 @@
         });
 
         if (targetPlayer.hand.length === 0) {
-            var emptyMsg = document.createElement('p');
+            let emptyMsg = document.createElement('p');
             emptyMsg.textContent = 'No cards to give.';
             dom.favorGiveCards.appendChild(emptyMsg);
         }
@@ -656,13 +656,13 @@
         if (!dom.comboCardSelector) return;
         dom.comboCardSelector.innerHTML = '';
 
-        var player = state.players[state.currentPlayerIndex];
+        let player = state.players[state.currentPlayerIndex];
         if (!player) return;
 
-        var catCards = player.hand.filter(function(c) { return c.cornerIcon; });
+        let catCards = player.hand.filter(function(c) { return c.cornerIcon; });
 
         catCards.forEach(function(card) {
-            var cardEl = renderCard(card, {
+            let cardEl = renderCard(card, {
                 clickable: true,
                 onClick: function(clickedCard) {
                     cardEl.classList.toggle('card--selected');
@@ -675,7 +675,7 @@
         });
 
         if (catCards.length === 0) {
-            var msg = document.createElement('p');
+            let msg = document.createElement('p');
             msg.textContent = 'No cat cards available for combos.';
             dom.comboCardSelector.appendChild(msg);
         }
@@ -686,20 +686,20 @@
      * @private
      */
     function renderNopeModal(state) {
-        var data = state.modalData || {};
-        var nopeStack = data.nopeStack || [];
-        var pendingAction = data.pendingAction || {};
+        let data = state.modalData || {};
+        let nopeStack = data.nopeStack || [];
+        let pendingAction = data.pendingAction || {};
 
-        var titleEl = document.getElementById('nope-title');
+        let titleEl = document.getElementById('nope-title');
         if (titleEl) {
-            var nopeCount = nopeStack.length;
-            var status = nopeCount % 2 === 1 ? 'CANCELLED' : 'PROCEEDS';
+            let nopeCount = nopeStack.length;
+            let status = nopeCount % 2 === 1 ? 'CANCELLED' : 'PROCEEDS';
             titleEl.textContent = nopeCount > 0
                 ? '⏱️ Nope Stack: ' + nopeCount + ' (' + status + ')'
                 : '⏱️ Do you want to Nope?';
         }
 
-        var descEl = document.querySelector('#nope-modal .modal-description');
+        let descEl = document.querySelector('#nope-modal .modal-description');
         if (descEl) {
             descEl.textContent = pendingAction.description
                 ? 'Action: ' + pendingAction.description
@@ -716,16 +716,16 @@
         dom.cardNameSelect.innerHTML = '';
 
         // Add all stealable card types as options
-        var stealableTypes = [
+        let stealableTypes = [
             'exploding_kitten', 'defuse', 'nope', 'attack', 'skip',
             'favor', 'shuffle', 'see_future',
             'tacocat', 'cattermelon', 'hairy_potato_cat', 'beard_cat', 'rainbow_cat'
         ];
 
         stealableTypes.forEach(function(type) {
-            var cardDef = window.CARD_TYPES[type];
+            let cardDef = window.CARD_TYPES[type];
             if (cardDef) {
-                var option = document.createElement('option');
+                let option = document.createElement('option');
                 option.value = type;
                 option.textContent = cardDef.emoji + ' ' + cardDef.name;
                 dom.cardNameSelect.appendChild(option);
@@ -741,12 +741,12 @@
         if (!dom.discardCards) return;
         dom.discardCards.innerHTML = '';
 
-        var discardPile = state.discardPile || [];
+        let discardPile = state.discardPile || [];
 
         // Show cards in reverse order (most recent first)
-        var reversed = discardPile.slice().reverse();
+        let reversed = discardPile.slice().reverse();
         reversed.forEach(function(card) {
-            var cardEl = renderCard(card, {
+            let cardEl = renderCard(card, {
                 clickable: true,
                 onClick: function(clickedCard) {
                     if (window.Events && typeof window.Events.handleDiscardPick === 'function') {
@@ -758,7 +758,7 @@
         });
 
         if (discardPile.length === 0) {
-            var msg = document.createElement('p');
+            let msg = document.createElement('p');
             msg.textContent = 'Discard pile is empty.';
             dom.discardCards.appendChild(msg);
         }
@@ -776,8 +776,8 @@
         if (dom.gameOverScreen) dom.gameOverScreen.classList.add('screen--active');
 
         // Find winner
-        var alivePlayers = (state.players || []).filter(function(p) { return p.isAlive; });
-        var winner = alivePlayers.length === 1 ? alivePlayers[0] : null;
+        let alivePlayers = (state.players || []).filter(function(p) { return p.isAlive; });
+        let winner = alivePlayers.length === 1 ? alivePlayers[0] : null;
 
         if (dom.winnerText) {
             if (winner) {
@@ -817,7 +817,7 @@
      */
     function getSelectedComboCards() {
         if (!dom.comboCardSelector) return [];
-        var selected = dom.comboCardSelector.querySelectorAll('.card--selected');
+        let selected = dom.comboCardSelector.querySelectorAll('.card--selected');
         return Array.from(selected).map(function(el) { return el.dataset.instanceId; }).filter(Boolean);
     }
 

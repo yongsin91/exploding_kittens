@@ -25,9 +25,9 @@
 
     // ========== STATE ==========
 
-    var initialized = false;
-    var selectedComboCards = [];
-    var pendingTargetSelection = null; // { type: 'favor'|'combo', comboInfo }
+    let initialized = false;
+    let selectedComboCards = [];
+    let pendingTargetSelection = null; // { type: 'favor'|'combo', comboInfo }
 
     // ========== VALIDATION ==========
 
@@ -37,8 +37,8 @@
      * @returns {Object} { valid, player, state }
      */
     function validateTurn() {
-        var state = window.GameState.getState();
-        var player = state.players[state.currentPlayerIndex];
+        let state = window.GameState.getState();
+        let player = state.players[state.currentPlayerIndex];
         if (!player) return { valid: false, error: 'No current player' };
         if (!player.isAlive) return { valid: false, error: 'Current player is dead' };
         if (!player.isHuman) return { valid: false, error: 'Not human player turn' };
@@ -62,19 +62,19 @@
      * @param {string} cardInstanceId - Instance ID of clicked card
      */
     function handleCardClick(cardInstanceId) {
-        var v = validateTurn();
+        let v = validateTurn();
         if (!v.valid) {
             console.log('[Events] Cannot play card:', v.error);
             return;
         }
 
-        var player = v.player;
+        let player = v.player;
         if (!cardInHand(player, cardInstanceId)) {
             console.log('[Events] Card not in hand');
             return;
         }
 
-        var card = player.hand.find(function(c) { return c.instanceId === cardInstanceId; });
+        let card = player.hand.find(function(c) { return c.instanceId === cardInstanceId; });
         if (!card) return;
 
         // Don't allow playing Defuse or Exploding Kitten directly
@@ -86,7 +86,7 @@
         // Cat cards — check for combo potential or play individually
         if (card.cornerIcon) {
             // Check if player has matching cat cards for a pair/triple combo
-            var sameType = player.hand.filter(function(c) { return c.type === card.type; });
+            let sameType = player.hand.filter(function(c) { return c.type === card.type; });
             if (sameType.length >= 2) {
                 // Open combo modal for selection
                 window.GameState.setStateProperty('activeModal', 'combo-modal');
@@ -95,8 +95,8 @@
             }
 
             // Check if player has 5 different cat cards for Five Different combo
-            var catCards = player.hand.filter(function(c) { return c.cornerIcon; });
-            var uniqueIcons = new Set(catCards.map(function(c) { return c.cornerIcon; }));
+            let catCards = player.hand.filter(function(c) { return c.cornerIcon; });
+            let uniqueIcons = new Set(catCards.map(function(c) { return c.cornerIcon; }));
             if (uniqueIcons.size >= 5) {
                 // Open combo modal for selection
                 window.GameState.setStateProperty('activeModal', 'combo-modal');
@@ -130,11 +130,11 @@
      * @param {number} targetId - Optional target for favor
      */
     function playCard(cardInstanceId, targetId) {
-        var v = validateTurn();
+        let v = validateTurn();
         if (!v.valid) return;
 
-        var player = v.player;
-        var card = player.hand.find(function(c) { return c.instanceId === cardInstanceId; });
+        let player = v.player;
+        let card = player.hand.find(function(c) { return c.instanceId === cardInstanceId; });
         if (!card) return;
 
         // Remove card from hand
@@ -146,11 +146,11 @@
         });
 
         // Resolve card effect
-        var result = window.CardEffects.resolveCardEffect(card.type, player.id, targetId);
+        let result = window.CardEffects.resolveCardEffect(card.type, player.id, targetId);
 
         if (result.requiresNopeResolution) {
             // Open nope window with resolver
-            var resolver = function() {
+            let resolver = function() {
                 // Effect proceeds — handle UI modals
                 handleEffectUI(result, player.id);
 
@@ -233,19 +233,19 @@
      * Handle draw card button click.
      */
     function handleDrawClick() {
-        var v = validateTurn();
+        let v = validateTurn();
         if (!v.valid) {
             console.log('[Events] Cannot draw:', v.error);
             return;
         }
 
-        var result = window.TurnEngine.drawCard(v.player.id);
+        let result = window.TurnEngine.drawCard(v.player.id);
         if (!result.success) {
             console.log('[Events] Draw failed:', result.error);
             return;
         }
 
-        var state = window.GameState.getState();
+        let state = window.GameState.getState();
 
         // If defuse modal is open (drew EK, has defuse) — wait for defuse placement
         if (state.activeModal === 'defuse-modal') {
@@ -272,14 +272,14 @@
      * Handle end turn button click.
      */
     function handleEndTurnClick() {
-        var v = validateTurn();
+        let v = validateTurn();
         if (!v.valid) {
             console.log('[Events] Cannot end turn:', v.error);
             return;
         }
 
         // If no cards played this turn, must draw a card to end turn
-        var state = window.GameState.getState();
+        let state = window.GameState.getState();
         if (state.cardsPlayed.length === 0) {
             handleDrawClick();
             return;
@@ -300,11 +300,11 @@
      * @param {number} targetPlayerId
      */
     function handleTargetSelect(targetPlayerId) {
-        var state = window.GameState.getState();
-        var modalData = state.modalData || {};
-        var playerId = modalData.playerId;
-        var comboInfo = modalData.comboInfo;
-        var comboStage = modalData.comboStage;
+        let state = window.GameState.getState();
+        let modalData = state.modalData || {};
+        let playerId = modalData.playerId;
+        let comboInfo = modalData.comboInfo;
+        let comboStage = modalData.comboStage;
 
         // Close target modal
         window.GameState.setState({ activeModal: null, modalData: {} });
@@ -321,7 +321,7 @@
             }
 
             // Two of a kind: resolve combo with target
-            var comboResult = window.Combo.resolveCombo(comboInfo, playerId, targetPlayerId, null);
+            let comboResult = window.Combo.resolveCombo(comboInfo, playerId, targetPlayerId, null);
             if (!comboResult.success) {
                 console.log('[Events] Combo failed:', comboResult.error);
             }
@@ -331,8 +331,8 @@
 
         // Handle favor target selection
         // The favor card was not yet played — play it now with the target
-        var player = state.players[playerId];
-        var favorCard = player.hand.find(function(c) { return c.type === 'favor'; });
+        let player = state.players[playerId];
+        let favorCard = player.hand.find(function(c) { return c.type === 'favor'; });
         if (favorCard) {
             // Remove favor card from hand and add to discard
             window.Player.removeCardFromHand(playerId, favorCard.instanceId);
@@ -341,8 +341,8 @@
             });
 
             // Open nope window for favor, then show favor-give modal
-            var favorResult = window.CardEffects.resolveCardEffect('favor', playerId, targetPlayerId);
-            var resolver = function() {
+            let favorResult = window.CardEffects.resolveCardEffect('favor', playerId, targetPlayerId);
+            let resolver = function() {
                 // After nope resolves, open favor-give modal
                 window.GameState.setState({
                     activeModal: 'favor-give-modal',
@@ -367,18 +367,18 @@
      * @param {string} cardInstanceId - Card to give
      */
     function handleFavorGive(cardInstanceId) {
-        var state = window.GameState.getState();
-        var modalData = state.modalData || {};
-        var targetPlayerId = modalData.targetPlayerId;
-        var requesterId = modalData.requesterId;
+        let state = window.GameState.getState();
+        let modalData = state.modalData || {};
+        let targetPlayerId = modalData.targetPlayerId;
+        let requesterId = modalData.requesterId;
 
         if (targetPlayerId === undefined || requesterId === undefined) {
             console.log('[Events] Missing favor data');
             return;
         }
 
-        var targetPlayer = state.players[targetPlayerId];
-        var card = targetPlayer.hand.find(function(c) { return c.instanceId === cardInstanceId; });
+        let targetPlayer = state.players[targetPlayerId];
+        let card = targetPlayer.hand.find(function(c) { return c.instanceId === cardInstanceId; });
         if (!card) return;
 
         // Transfer card
@@ -430,10 +430,10 @@
      * Handle defuse placement — put EK back in deck at chosen position.
      */
     function handleDefusePlace() {
-        var state = window.GameState.getState();
-        var modalData = state.modalData || {};
-        var ekCard = modalData.ekCard;
-        var playerId = modalData.playerId;
+        let state = window.GameState.getState();
+        let modalData = state.modalData || {};
+        let ekCard = modalData.ekCard;
+        let playerId = modalData.playerId;
 
         if (!ekCard || playerId === undefined) {
             console.log('[Events] Missing defuse data');
@@ -441,11 +441,11 @@
         }
 
         // Get position from UI
-        var position = window.UIRenderer.getDefusePosition();
+        let position = window.UIRenderer.getDefusePosition();
 
         // Remove defuse card from player's hand
-        var player = state.players[playerId];
-        var defuseCard = player.hand.find(function(c) { return c.type === 'defuse'; });
+        let player = state.players[playerId];
+        let defuseCard = player.hand.find(function(c) { return c.type === 'defuse'; });
         if (defuseCard) {
             window.Player.removeCardFromHand(playerId, defuseCard.instanceId);
             window.GameState.mutate(function(state) {
@@ -479,9 +479,9 @@
      */
     function clearComboSelection() {
         selectedComboCards = [];
-        var comboSelector = document.getElementById('combo-card-selector');
+        let comboSelector = document.getElementById('combo-card-selector');
         if (comboSelector) {
-            var selectedCards = comboSelector.querySelectorAll('.card--selected');
+            let selectedCards = comboSelector.querySelectorAll('.card--selected');
             selectedCards.forEach(function(el) { el.classList.remove('card--selected'); });
         }
     }
@@ -491,7 +491,7 @@
      * @param {string} cardInstanceId
      */
     function handleComboCardToggle(cardInstanceId) {
-        var idx = selectedComboCards.indexOf(cardInstanceId);
+        let idx = selectedComboCards.indexOf(cardInstanceId);
         if (idx !== -1) {
             selectedComboCards.splice(idx, 1);
         } else {
@@ -504,8 +504,8 @@
      */
     function handleComboSubmit() {
         // Don't use validateTurn() — combo modal is active, which would block it
-        var state = window.GameState.getState();
-        var player = state.players[state.currentPlayerIndex];
+        let state = window.GameState.getState();
+        let player = state.players[state.currentPlayerIndex];
         if (!player || !player.isAlive || !player.isHuman) return;
 
         if (selectedComboCards.length < 2) {
@@ -513,7 +513,7 @@
             return;
         }
 
-        var cards = selectedComboCards.map(function(id) {
+        let cards = selectedComboCards.map(function(id) {
             return player.hand.find(function(c) { return c.instanceId === id; });
         }).filter(Boolean);
 
@@ -522,14 +522,14 @@
             return;
         }
 
-        var comboInfo = window.Combo.detectCombo(cards);
+        let comboInfo = window.Combo.detectCombo(cards);
         if (!comboInfo) {
             console.log('[Events] Invalid combo');
             return;
         }
 
         // Save selected cards before clearing
-        var cardsToRemove = selectedComboCards.slice();
+        let cardsToRemove = selectedComboCards.slice();
 
         // Close combo modal
         window.GameState.setState({ activeModal: null });
@@ -559,9 +559,9 @@
 
         // For five different, route through nope window
         if (comboInfo.comboType === 'five_different') {
-            var state = window.GameState.getState();
-            var discardPile = state.discardPile;
-            var resolver = function() {
+            let state = window.GameState.getState();
+            let discardPile = state.discardPile;
+            let resolver = function() {
                 // After nope resolves, open discard browser modal
                 window.GameState.setState({
                     activeModal: 'discard-browser-modal',
@@ -587,24 +587,24 @@
      */
     function handleThreeKindName() {
         // Don't use validateTurn() — three-kind modal is active
-        var state = window.GameState.getState();
-        var modalData = state.modalData || {};
-        var comboInfo = modalData.comboInfo;
-        var playerId = modalData.playerId;
-        var targetId = modalData.targetId;
+        let state = window.GameState.getState();
+        let modalData = state.modalData || {};
+        let comboInfo = modalData.comboInfo;
+        let playerId = modalData.playerId;
+        let targetId = modalData.targetId;
 
         if (!comboInfo || playerId === undefined || targetId === undefined) {
             console.log('[Events] Missing three-kind data');
             return;
         }
 
-        var namedCard = window.UIRenderer.getSelectedCardName();
+        let namedCard = window.UIRenderer.getSelectedCardName();
 
         // Close modal
         window.GameState.setState({ activeModal: null, modalData: {} });
 
         // Resolve combo with target and named card
-        var result = window.Combo.resolveCombo(comboInfo, playerId, targetId, namedCard);
+        let result = window.Combo.resolveCombo(comboInfo, playerId, targetId, namedCard);
         if (!result.success) {
             console.log('[Events] Combo failed:', result.error);
         }
@@ -619,9 +619,9 @@
      */
     function handleDiscardPick(cardInstanceId) {
         // Don't use validateTurn() — discard browser modal is active
-        var state = window.GameState.getState();
-        var modalData = state.modalData || {};
-        var playerId = modalData.playerId;
+        let state = window.GameState.getState();
+        let modalData = state.modalData || {};
+        let playerId = modalData.playerId;
 
         if (playerId === undefined) {
             console.log('[Events] Missing discard pick data');
@@ -656,7 +656,7 @@
      */
     function handleKeyboard(e) {
         // Only process if game screen is active
-        var gameScreen = document.getElementById('game-screen');
+        let gameScreen = document.getElementById('game-screen');
         if (!gameScreen || !gameScreen.classList.contains('screen--active')) return;
 
         // Don't process if typing in an input
@@ -672,7 +672,7 @@
                 break;
             case 'escape':
                 // Close active modal via state — UIRenderer handles DOM
-                var state = window.GameState.getState();
+                let state = window.GameState.getState();
                 if (state.activeModal) {
                     // Clear combo selection if closing combo modal
                     if (state.activeModal === 'combo-modal') {
@@ -695,34 +695,34 @@
         initialized = true;
 
         // Draw button
-        var drawBtn = document.getElementById('draw-btn');
+        let drawBtn = document.getElementById('draw-btn');
         if (drawBtn) drawBtn.addEventListener('click', handleDrawClick);
 
         // End turn button
-        var endTurnBtn = document.getElementById('end-turn-btn');
+        let endTurnBtn = document.getElementById('end-turn-btn');
         if (endTurnBtn) endTurnBtn.addEventListener('click', handleEndTurnClick);
 
         // Nope buttons
-        var nopeYesBtn = document.getElementById('nope-yes-btn');
+        let nopeYesBtn = document.getElementById('nope-yes-btn');
         if (nopeYesBtn) nopeYesBtn.addEventListener('click', function() { handleNopeResponse(true); });
 
-        var nopeNoBtn = document.getElementById('nope-no-btn');
+        let nopeNoBtn = document.getElementById('nope-no-btn');
         if (nopeNoBtn) nopeNoBtn.addEventListener('click', function() { handleNopeResponse(false); });
 
         // Defuse confirm
-        var defuseConfirmBtn = document.getElementById('defuse-confirm-btn');
+        let defuseConfirmBtn = document.getElementById('defuse-confirm-btn');
         if (defuseConfirmBtn) defuseConfirmBtn.addEventListener('click', handleDefusePlace);
 
         // Combo confirm
-        var comboConfirmBtn = document.getElementById('combo-confirm-btn');
+        let comboConfirmBtn = document.getElementById('combo-confirm-btn');
         if (comboConfirmBtn) comboConfirmBtn.addEventListener('click', handleComboSubmit);
 
         // Three of a kind confirm
-        var threeKindConfirmBtn = document.getElementById('three-kind-confirm-btn');
+        let threeKindConfirmBtn = document.getElementById('three-kind-confirm-btn');
         if (threeKindConfirmBtn) threeKindConfirmBtn.addEventListener('click', handleThreeKindName);
 
         // Play again
-        var playAgainBtn = document.getElementById('play-again-btn');
+        let playAgainBtn = document.getElementById('play-again-btn');
         if (playAgainBtn) playAgainBtn.addEventListener('click', handlePlayAgain);
 
         // Keyboard shortcuts

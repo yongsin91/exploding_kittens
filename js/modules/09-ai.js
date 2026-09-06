@@ -29,7 +29,7 @@
 
     // ========== AI DIFFICULTY ==========
 
-    var difficulty = 'medium';
+    let difficulty = 'medium';
 
     /**
      * Set AI difficulty level.
@@ -73,7 +73,7 @@
      * @private
      */
     function countCardsByType(hand) {
-        var counts = {};
+        let counts = {};
         hand.forEach(function(card) {
             counts[card.type] = (counts[card.type] || 0) + 1;
         });
@@ -104,7 +104,7 @@
      * @private
      */
     function getCardValue(cardType) {
-        var values = {
+        let values = {
             'exploding_kitten': 0,    // Should never have one
             'defuse': 100,             // Most valuable
             'attack': 70,
@@ -130,8 +130,8 @@
      * @returns {Object} Decision: { action: 'play'|'draw', cardType, cardInstanceId, targetId, comboCards, namedCard }
      */
     function getAIDecision(playerId) {
-        var state = window.GameState.getState();
-        var player = state.players[playerId];
+        let state = window.GameState.getState();
+        let player = state.players[playerId];
         if (!player || !player.isAlive) {
             return { action: 'draw' };
         }
@@ -152,14 +152,14 @@
     function getEasyDecision(playerId, state, player) {
         // 50% chance to play a random card, 50% to draw
         if (player.hand.length > 0 && Math.random() < 0.5) {
-            var playableCards = player.hand.filter(function(c) {
+            let playableCards = player.hand.filter(function(c) {
                 return c.type !== 'exploding_kitten' && c.type !== 'defuse';
             });
             if (playableCards.length > 0) {
-                var card = randomPick(playableCards);
-                var targetId = null;
+                let card = randomPick(playableCards);
+                let targetId = null;
                 if (card.type === 'favor') {
-                    var others = window.Player.getOtherAlivePlayers(playerId);
+                    let others = window.Player.getOtherAlivePlayers(playerId);
                     if (others.length > 0) targetId = randomPick(others).id;
                 }
                 return {
@@ -178,26 +178,26 @@
      * @private
      */
     function getMediumDecision(playerId, state, player) {
-        var hand = player.hand;
-        var counts = countCardsByType(hand);
+        let hand = player.hand;
+        let counts = countCardsByType(hand);
 
         // Priority 1: Survival — if we know EK is on top, play Skip or Attack
-        var memory = getPeekMemory(playerId);
+        let memory = getPeekMemory(playerId);
         if (memory && memory.topCard === 'exploding_kitten') {
-            var skipCard = findCardsOfType(hand, 'skip');
+            let skipCard = findCardsOfType(hand, 'skip');
             if (skipCard.length > 0) {
                 return { action: 'play', cardType: 'skip', cardInstanceId: skipCard[0].instanceId };
             }
-            var attackCard = findCardsOfType(hand, 'attack');
+            let attackCard = findCardsOfType(hand, 'attack');
             if (attackCard.length > 0) {
                 return { action: 'play', cardType: 'attack', cardInstanceId: attackCard[0].instanceId };
             }
         }
 
         // Priority 2: Disruption — Attack when next player has few cards
-        var nextPlayer = getNextPlayer(playerId, state);
+        let nextPlayer = getNextPlayer(playerId, state);
         if (nextPlayer && nextPlayer.hand.length <= 2) {
-            var attackCard = findCardsOfType(hand, 'attack');
+            let attackCard = findCardsOfType(hand, 'attack');
             if (attackCard.length > 0) {
                 return { action: 'play', cardType: 'attack', cardInstanceId: attackCard[0].instanceId };
             }
@@ -205,16 +205,16 @@
 
         // Priority 3: Info — See the Future if deck is getting small
         if (state.drawPile.length <= 8) {
-            var seeFutureCard = findCardsOfType(hand, 'see_future');
+            let seeFutureCard = findCardsOfType(hand, 'see_future');
             if (seeFutureCard.length > 0) {
                 return { action: 'play', cardType: 'see_future', cardInstanceId: seeFutureCard[0].instanceId };
             }
         }
 
         // Priority 4: Card advantage — Favor on player with most cards
-        var favorCard = findCardsOfType(hand, 'favor');
+        let favorCard = findCardsOfType(hand, 'favor');
         if (favorCard.length > 0) {
-            var bestTarget = getBestFavorTarget(playerId, state);
+            let bestTarget = getBestFavorTarget(playerId, state);
             if (bestTarget !== null) {
                 return {
                     action: 'play',
@@ -226,14 +226,14 @@
         }
 
         // Priority 5: Combos — Two of a Kind if has matching cat cards
-        var comboDecision = checkComboPlay(playerId, state, player);
+        let comboDecision = checkComboPlay(playerId, state, player);
         if (comboDecision) {
             return comboDecision;
         }
 
         // Priority 6: Skip if has skip and deck is dangerous
         if (state.drawPile.length <= 5) {
-            var skipCard = findCardsOfType(hand, 'skip');
+            let skipCard = findCardsOfType(hand, 'skip');
             if (skipCard.length > 0) {
                 return { action: 'play', cardType: 'skip', cardInstanceId: skipCard[0].instanceId };
             }
@@ -249,21 +249,21 @@
      */
     function getHardDecision(playerId, state, player) {
         // Start with medium strategy
-        var decision = getMediumDecision(playerId, state, player);
+        let decision = getMediumDecision(playerId, state, player);
 
         // Hard AI enhancements:
         // 1. Track EKs in deck vs discard
-        var eksInDiscard = state.discardPile.filter(function(c) { return c.type === 'exploding_kitten'; }).length;
-        var eksRemaining = (state.players.length - 1) - eksInDiscard;
-        var ekProbability = eksRemaining / Math.max(state.drawPile.length, 1);
+        let eksInDiscard = state.discardPile.filter(function(c) { return c.type === 'exploding_kitten'; }).length;
+        let eksRemaining = (state.players.length - 1) - eksInDiscard;
+        let ekProbability = eksRemaining / Math.max(state.drawPile.length, 1);
 
         // 2. If high EK probability, prioritize survival
         if (ekProbability > 0.3 && decision.action === 'draw') {
-            var skipCard = findCardsOfType(player.hand, 'skip');
+            let skipCard = findCardsOfType(player.hand, 'skip');
             if (skipCard.length > 0) {
                 return { action: 'play', cardType: 'skip', cardInstanceId: skipCard[0].instanceId };
             }
-            var attackCard = findCardsOfType(player.hand, 'attack');
+            let attackCard = findCardsOfType(player.hand, 'attack');
             if (attackCard.length > 0) {
                 return { action: 'play', cardType: 'attack', cardInstanceId: attackCard[0].instanceId };
             }
@@ -272,7 +272,7 @@
         // 3. Hold onto Defuse cards (never play them proactively)
         // 4. Prefer to play shuffle when deck is unfavorable
         if (ekProbability > 0.2 && decision.action === 'draw') {
-            var shuffleCard = findCardsOfType(player.hand, 'shuffle');
+            let shuffleCard = findCardsOfType(player.hand, 'shuffle');
             if (shuffleCard.length > 0 && Math.random() < 0.5) {
                 return { action: 'play', cardType: 'shuffle', cardInstanceId: shuffleCard[0].instanceId };
             }
@@ -288,16 +288,16 @@
      * @private
      */
     function checkComboPlay(playerId, state, player) {
-        var catCards = getCatCards(player.hand);
+        let catCards = getCatCards(player.hand);
         if (catCards.length < 2) return null;
 
-        var counts = countCardsByType(player.hand);
+        let counts = countCardsByType(player.hand);
 
         // Check for Three of a Kind first (before two of a kind)
-        for (var type in counts) {
+        for (let type in counts) {
             if (counts[type] >= 3 && window.CARD_TYPES[type] && window.CARD_TYPES[type].cornerIcon) {
-                var matching3 = findCardsOfType(player.hand, type).slice(0, 3);
-                var namedCard = aiNameCardForThreeOfKind(playerId);
+                let matching3 = findCardsOfType(player.hand, type).slice(0, 3);
+                let namedCard = aiNameCardForThreeOfKind(playerId);
                 return {
                     action: 'play',
                     combo: true,
@@ -309,10 +309,10 @@
         }
 
         // Check for Two of a Kind
-        for (var type2 in counts) {
+        for (let type2 in counts) {
             if (counts[type2] >= 2 && window.CARD_TYPES[type2] && window.CARD_TYPES[type2].cornerIcon) {
-                var matching = findCardsOfType(player.hand, type2).slice(0, 2);
-                var targetId = getBestStealTarget(playerId, state);
+                let matching = findCardsOfType(player.hand, type2).slice(0, 2);
+                let targetId = getBestStealTarget(playerId, state);
                 return {
                     action: 'play',
                     combo: true,
@@ -333,11 +333,11 @@
      * @private
      */
     function getBestFavorTarget(playerId, state) {
-        var others = window.Player.getOtherAlivePlayers(playerId);
+        let others = window.Player.getOtherAlivePlayers(playerId);
         if (others.length === 0) return null;
 
-        var best = others[0];
-        for (var i = 1; i < others.length; i++) {
+        let best = others[0];
+        for (let i = 1; i < others.length; i++) {
             if (others[i].hand.length > best.hand.length) {
                 best = others[i];
             }
@@ -373,17 +373,17 @@
     function getAINopeDecision(playerId, pendingAction) {
         if (!pendingAction) return false;
 
-        var state = window.GameState.getState();
-        var player = state.players[playerId];
+        let state = window.GameState.getState();
+        let player = state.players[playerId];
         if (!player || !player.isAlive) return false;
 
         // Check if AI has a nope card
-        var nopeCards = findCardsOfType(player.hand, 'nope');
+        let nopeCards = findCardsOfType(player.hand, 'nope');
         if (nopeCards.length === 0) return false;
 
-        var actionType = pendingAction.type;
-        var cardType = pendingAction.cardType;
-        var actionPlayerId = pendingAction.playerId;
+        let actionType = pendingAction.type;
+        let cardType = pendingAction.cardType;
+        let actionPlayerId = pendingAction.playerId;
 
         // Don't nope own actions
         if (actionPlayerId === playerId) return false;
@@ -397,7 +397,7 @@
             // Hard: Strategic nope decisions
             // Always nope Attack targeting next player if we're next
             if (cardType === 'attack') {
-                var nextP = getNextPlayer(actionPlayerId, state);
+                let nextP = getNextPlayer(actionPlayerId, state);
                 if (nextP && nextP.id === playerId) return true;
             }
             // Always nope Favor targeting self
@@ -421,7 +421,7 @@
         if (cardType === 'favor' && pendingAction.targetId === playerId) return true;
         // Always nope Attack if we're the next player
         if (cardType === 'attack') {
-            var nextPlayer = getNextPlayer(actionPlayerId, state);
+            let nextPlayer = getNextPlayer(actionPlayerId, state);
             if (nextPlayer && nextPlayer.id === playerId) return true;
         }
         // 50% nope See the Future
@@ -444,17 +444,17 @@
      * @returns {string} Card instance ID to give
      */
     function aiChooseFavorCard(playerId) {
-        var state = window.GameState.getState();
-        var player = state.players[playerId];
+        let state = window.GameState.getState();
+        let player = state.players[playerId];
         if (!player || player.hand.length === 0) return null;
 
         // Sort hand by value (ascending) — give lowest value card
-        var sortedHand = player.hand.slice().sort(function(a, b) {
+        let sortedHand = player.hand.slice().sort(function(a, b) {
             return getCardValue(a.type) - getCardValue(b.type);
         });
 
         // Never give Defuse unless it's the only card
-        var nonDefuse = sortedHand.filter(function(c) { return c.type !== 'defuse'; });
+        let nonDefuse = sortedHand.filter(function(c) { return c.type !== 'defuse'; });
         if (nonDefuse.length > 0) {
             return nonDefuse[0].instanceId;
         }
@@ -480,14 +480,14 @@
         if (difficulty === 'hard') {
             // Hard: Place near bottom (next player won't draw it soon)
             // But not at the very bottom — mix it up slightly
-            var basePos = Math.floor(deckSize * 0.75);
-            var jitter = randomInt(Math.max(Math.floor(deckSize * 0.15), 2));
+            let basePos = Math.floor(deckSize * 0.75);
+            let jitter = randomInt(Math.max(Math.floor(deckSize * 0.15), 2));
             return Math.min(basePos + jitter, deckSize);
         }
 
         // Medium: Place in middle-bottom area
-        var midPos = Math.floor(deckSize * 0.6);
-        var variation = randomInt(Math.max(Math.floor(deckSize * 0.2), 2));
+        let midPos = Math.floor(deckSize * 0.6);
+        let variation = randomInt(Math.max(Math.floor(deckSize * 0.2), 2));
         return Math.min(midPos + variation, deckSize);
     }
 
@@ -500,26 +500,26 @@
      * @returns {string} Card type to steal
      */
     function aiNameCardForThreeOfKind(playerId) {
-        var state = window.GameState.getState();
+        let state = window.GameState.getState();
 
         if (difficulty === 'easy') {
             // Easy: Random card type
-            var types = Object.keys(window.CARD_TYPES);
+            let types = Object.keys(window.CARD_TYPES);
             return randomPick(types.filter(function(t) { return t !== 'exploding_kitten'; }));
         }
 
         // Medium/Hard: Check what other players likely have
         // Priority: Defuse > See the Future > Attack > Skip > Nope
-        var priorities = ['defuse', 'see_future', 'attack', 'skip', 'nope', 'favor', 'shuffle'];
+        let priorities = ['defuse', 'see_future', 'attack', 'skip', 'nope', 'favor', 'shuffle'];
 
         // Hard: Check discard pile to know what's been played
         if (difficulty === 'hard') {
-            var discardCounts = countCardsByType(state.discardPile);
+            let discardCounts = countCardsByType(state.discardPile);
             // Choose a card type that hasn't been fully depleted
-            for (var i = 0; i < priorities.length; i++) {
-                var type = priorities[i];
-                var totalInDeck = window.DECK_COMPOSITION[type] || 0;
-                var inDiscard = discardCounts[type] || 0;
+            for (let i = 0; i < priorities.length; i++) {
+                let type = priorities[i];
+                let totalInDeck = window.DECK_COMPOSITION[type] || 0;
+                let inDiscard = discardCounts[type] || 0;
                 if (inDiscard < totalInDeck) {
                     return type;
                 }
@@ -527,7 +527,7 @@
         }
 
         // Medium: Just use priority list
-        for (var j = 0; j < priorities.length; j++) {
+        for (let j = 0; j < priorities.length; j++) {
             return priorities[0]; // Return highest priority
         }
 
@@ -542,7 +542,7 @@
      * @returns {Object} The decision that was made
      */
     function aiTakeTurn(playerId) {
-        var decision = getAIDecision(playerId);
+        let decision = getAIDecision(playerId);
         return decision;
     }
 
@@ -560,7 +560,7 @@
      * @param {number} playerId - AI player
      * @param {Array} peekedCards - Top 3 cards from draw pile (top first)
      */
-    var peekMemory = {};
+    let peekMemory = {};
 
     function rememberPeekedCards(playerId, peekedCards) {
         // Store cards in draw order: [0] = top (next draw), [1] = second, [2] = third
