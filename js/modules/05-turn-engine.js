@@ -407,7 +407,6 @@
     window.TurnEngine = Object.freeze({
         startTurn,
         endTurn,
-        advanceToNextPlayer,
         drawCard,
         placeExplodingKitten,
         getTurnPhase,
