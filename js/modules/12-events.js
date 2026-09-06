@@ -671,9 +671,13 @@
                 handleEndTurnClick();
                 break;
             case 'escape':
-                // Close active modal
+                // Close active modal via state — UIRenderer handles DOM
                 var state = window.GameState.getState();
                 if (state.activeModal) {
+                    // Clear combo selection if closing combo modal
+                    if (state.activeModal === 'combo-modal') {
+                        clearComboSelection();
+                    }
                     window.GameState.setState({ activeModal: null, modalData: {} });
                 }
                 break;

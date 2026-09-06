@@ -297,34 +297,17 @@
     // ========== MODAL MANAGEMENT ==========
 
     /**
-     * Open a modal by ID
-     * @param {string} modalId - ID of modal to open
-     */
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('modal--active');
-            modal.setAttribute('aria-hidden', 'false');
-            log(`Modal opened: ${modalId}`);
-        }
-    }
-
-    /**
-     * Close a modal by ID
-     * @param {string} modalId - ID of modal to close
+     * Close a modal by updating game state.
+     * The UIRenderer reacts to the state change and handles all DOM manipulation.
+     * This is the single entry point for user-initiated modal closing.
+     * @param {string} modalId - ID of modal to close (used for combo cleanup)
      */
     function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.remove('modal--active');
-            modal.setAttribute('aria-hidden', 'true');
-            log(`Modal closed: ${modalId}`);
-        }
         // Clear combo selection when closing combo modal
         if (modalId === 'combo-modal' && window.Events && typeof window.Events.clearComboSelection === 'function') {
             window.Events.clearComboSelection();
         }
-        // Also clear the game state activeModal so the UI doesn't reopen it
+        // Update state — UIRenderer.renderModals() will handle DOM changes
         if (window.GameState) {
             window.GameState.setState({ activeModal: null, modalData: {} });
         }
@@ -350,12 +333,7 @@
                 if (e.target === overlay) {
                     const modal = overlay.closest('.modal');
                     if (modal) {
-                        modal.classList.remove('modal--active');
-                        modal.setAttribute('aria-hidden', 'true');
-                        // Clear game state so modal doesn't reopen
-                        if (window.GameState) {
-                            window.GameState.setState({ activeModal: null, modalData: {} });
-                        }
+                        closeModal(modal.id);
                     }
                 }
             });
@@ -501,7 +479,6 @@
         resetToSetupScreen,
 
         // Modal management
-        openModal,
         closeModal,
 
         // State access (read-only)
