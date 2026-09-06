@@ -451,7 +451,6 @@
         getCardCountByType,
         getHandSize,
         killPlayer,
-        revivePlayer,
         getActivePlayer,
         getNextAlivePlayerIndex,
         getAlivePlayers,

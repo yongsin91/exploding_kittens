@@ -328,10 +328,7 @@
         window.shuffle = shuffle;
         window.createDeck = createDeck;
         window.removeExplodingKittens = removeExplodingKittens;
-        window.insertExplodingKittens = insertExplodingKittens;
         window.removeDefuses = removeDefuses;
-        window.insertDefuses = insertDefuses;
-        window.getDeckSummary = getDeckSummary;
 
         console.log('[Module 2: Deck & Shuffle] Loaded');
     } catch (error) {
