@@ -68,7 +68,10 @@
      */
     function log(message, level = 'info') {
         const prefix = '[GameApp]';
-        console[level](`${prefix} ${message}`);
+        // Always log errors and warnings; gate info/debug behind DEBUG flag
+        if (level === 'error' || level === 'warn' || (window.GAME_CONFIG && window.GAME_CONFIG.DEBUG)) {
+            console[level](`${prefix} ${message}`);
+        }
     }
 
     /**

@@ -20,7 +20,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 13: Game Flow Controller] Loading...');
+    window.debug('[Module 13: Game Flow Controller] Loading...');
 
     if (!window.GameState || !window.Player || !window.TurnEngine || !window.CardEffects || !window.Combo || !window.Nope || !window.UIRenderer || !window.Events) {
         throw new Error('[Module 13] Missing dependencies.');
@@ -42,7 +42,7 @@
      * @param {string[]} config.playerNames - Array of player names
      */
     function initGame(config) {
-        console.log('[GameFlow] Initializing game with config:', JSON.stringify(config));
+        window.debug('[GameFlow] Initializing game with config:', JSON.stringify(config));
 
         gameConfig = config;
 
@@ -153,7 +153,7 @@
         // 16. Start first turn
         startTurn(firstPlayerIndex);
 
-        console.log('[GameFlow] Game initialized successfully');
+        window.debug('[GameFlow] Game initialized successfully');
     }
 
     // ========== TURN MANAGEMENT ==========
@@ -198,7 +198,7 @@
         // Advance to next player
         let nextIndex = window.Player.getNextAlivePlayerIndex();
         if (nextIndex === -1) {
-            console.log('[GameFlow] No alive players found');
+            window.debug('[GameFlow] No alive players found');
             endGame(null);
             return;
         }
@@ -257,7 +257,7 @@
             window.UIRenderer.forceRender();
         }
 
-        console.log('[GameFlow] Game over. Winner:', winner ? winner.name : 'None');
+        window.debug('[GameFlow] Game over. Winner:', winner ? winner.name : 'None');
     }
 
     // ========== PLAYER DEATH ==========
@@ -295,7 +295,7 @@
      * Restart game — return to setup screen.
      */
     function restartGame() {
-        console.log('[GameFlow] Restarting game...');
+        window.debug('[GameFlow] Restarting game...');
 
         window.GameState.reset();
         if (window.HotSeat) {
@@ -371,5 +371,5 @@
         handleHotSeatTransition: handleHotSeatTransition
     });
 
-    console.log('[Module 13: Game Flow Controller] Loaded ✓');
+    window.debug('[Module 13: Game Flow Controller] Loaded ✓');
 })();

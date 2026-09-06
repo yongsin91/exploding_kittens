@@ -21,7 +21,20 @@
 (function() {
     'use strict';
 
-    console.log('[Module 1: Constants] Loading...');
+    // ========== DEBUG HELPER (defined first so all modules can use it) ==========
+
+    /**
+     * Debug logging function — only logs when GAME_CONFIG.DEBUG is true.
+     * Use instead of console.log throughout the codebase.
+     * @param {...*} args - Arguments to log
+     */
+    window.debug = function() {
+        if (window.GAME_CONFIG && window.GAME_CONFIG.DEBUG) {
+            console.log.apply(console, arguments);
+        }
+    };
+
+    window.debug('[Module 1: Constants] Loading...');
 
     // ========== CARD TYPE DEFINITIONS ==========
 
@@ -274,6 +287,9 @@
             GAME_OVER: 'game-over'
         },
 
+        // Debug logging — set to true to enable console.log output
+        DEBUG: false,
+
         // Action types
         ACTIONS: {
             PLAY_CARD: 'play_card',
@@ -318,5 +334,5 @@
     window.COMBO_TYPES = Object.freeze(COMBO_TYPES);
     window.GAME_CONFIG = Object.freeze(GAME_CONFIG);
 
-    console.log('[Module 1: Constants] Loaded - 56 card deck with 14 types defined');
+    window.debug('[Module 1: Constants] Loaded - 56 card deck with 14 types defined');
 })();

@@ -19,7 +19,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 6: Card Effect Resolver] Loading...');
+    window.debug('[Module 6: Card Effect Resolver] Loading...');
 
     // Validate dependencies
     if (!window.CARD_TYPES || !window.GameState || !window.Player || !window.TurnEngine) {
@@ -454,5 +454,5 @@
         getEffectDescription
     });
 
-    console.log('[Module 6: Card Effect Resolver] Loaded ✓');
+    window.debug('[Module 6: Card Effect Resolver] Loaded ✓');
 })();

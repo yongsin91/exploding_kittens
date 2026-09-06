@@ -18,7 +18,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 10: UI Renderer] Loading...');
+    window.debug('[Module 10: UI Renderer] Loading...');
 
     if (!window.CARD_TYPES || !window.GameState) {
         throw new Error('[Module 10] Missing dependencies. Modules 1, 3 required.');
@@ -797,7 +797,7 @@
     function init() {
         cacheDOM();
         window.GameState.subscribe(render);
-        console.log('[Module 10] Subscribed to GameState changes');
+        window.debug('[Module 10] Subscribed to GameState changes');
     }
 
     /**
@@ -850,5 +850,5 @@
         getSelectedCardName: getSelectedCardName
     });
 
-    console.log('[Module 10: UI Renderer] Loaded ✓');
+    window.debug('[Module 10: UI Renderer] Loaded ✓');
 })();

@@ -17,7 +17,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 11: Hot-Seat Mode Controller] Loading...');
+    window.debug('[Module 11: Hot-Seat Mode Controller] Loading...');
 
     if (!window.GameState || !window.UIRenderer) {
         throw new Error('[Module 11] Missing dependencies. Modules 3, 10 required.');
@@ -374,5 +374,5 @@
         reset: reset
     });
 
-    console.log('[Module 11: Hot-Seat Mode Controller] Loaded ✓');
+    window.debug('[Module 11: Hot-Seat Mode Controller] Loaded ✓');
 })();

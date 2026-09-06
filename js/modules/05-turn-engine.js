@@ -17,7 +17,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 5: Turn Engine] Loading...');
+    window.debug('[Module 5: Turn Engine] Loading...');
 
     // Validate dependencies
     if (!window.GAME_CONFIG || !window.GameState || !window.Player) {
@@ -92,7 +92,7 @@
             });
 
             if (success) {
-                console.log(`[Module 5] Turn started: ${player.name} (Attack turns remaining: ${currentAttackRemaining})`);
+                window.debug(`[Module 5] Turn started: ${player.name} (Attack turns remaining: ${currentAttackRemaining})`);
                 
                 window.GameState.logAction({
                     type: 'TURN_START',
@@ -157,7 +157,7 @@
             
             if (success) {
                 const nextPlayer = window.Player.getPlayerById(nextIndex);
-                console.log(`[Module 5] Advanced to next player: ${nextPlayer.name}`);
+                window.debug(`[Module 5] Advanced to next player: ${nextPlayer.name}`);
             }
 
             return success;
@@ -219,13 +219,13 @@
 
             // Handle Exploding Kitten — do NOT add to hand
             if (drawnCard.type === 'exploding_kitten') {
-                console.log(`[Module 5] ⚠️ EXPLODING KITTEN DRAWN by ${player.name}`);
+                window.debug(`[Module 5] ⚠️ EXPLODING KITTEN DRAWN by ${player.name}`);
 
                 // Check if player has Defuse
                 const defuseCard = window.Player.findCardInHand(playerId, 'defuse');
 
                 if (defuseCard) {
-                    console.log(`[Module 5] ${player.name} has Defuse - entering defuse placement`);
+                    window.debug(`[Module 5] ${player.name} has Defuse - entering defuse placement`);
                     
                     // Open defuse modal — EK held in modalData, NOT in hand
                     window.GameState.setState({
@@ -238,7 +238,7 @@
                         }
                     });
                 } else {
-                    console.log(`[Module 5] ${player.name} has no Defuse - ELIMINATED`);
+                    window.debug(`[Module 5] ${player.name} has no Defuse - ELIMINATED`);
                     
                     // Move EK to discard (it was never in hand)
                     window.GameState.mutate(function(state) {
@@ -283,7 +283,7 @@
                 drawPile.splice(position, 0, ekCard);
             });
             
-            console.log(`[Module 5] Exploding Kitten placed at position ${position} in deck`);
+            window.debug(`[Module 5] Exploding Kitten placed at position ${position} in deck`);
 
             return true;
         } catch (error) {
@@ -420,5 +420,5 @@
         getTurnSummary
     });
 
-    console.log('[Module 5: Turn Engine] Loaded ✓');
+    window.debug('[Module 5: Turn Engine] Loaded ✓');
 })();

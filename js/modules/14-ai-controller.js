@@ -20,7 +20,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 14: AI Turn Controller] Loading...');
+    window.debug('[Module 14: AI Turn Controller] Loading...');
 
     if (!window.GameState || !window.Player || !window.TurnEngine || !window.CardEffects || !window.Combo || !window.Nope || !window.AI) {
         throw new Error('[Module 14] Missing dependencies.');
@@ -99,7 +99,7 @@
         });
 
         let result = window.Combo.resolveCombo(comboInfo, playerId, decision.targetId, decision.namedCard);
-        console.log('[AIController] AI combo result:', result);
+        window.debug('[AIController] AI combo result:', result);
 
         if (result.requiresNopeResolution && window.Nope) {
             window.Nope.openNopeWindow({
@@ -134,7 +134,7 @@
         });
 
         let effectResult = window.CardEffects.resolveCardEffect(decision.cardType, playerId, decision.targetId);
-        console.log('[AIController] AI card effect:', effectResult);
+        window.debug('[AIController] AI card effect:', effectResult);
 
         if (effectResult.requiresNopeResolution && window.Nope) {
             window.Nope.openNopeWindow({
@@ -213,7 +213,7 @@
     function executeAIDraw(playerId) {
         let result = window.TurnEngine.drawCard(playerId);
         if (!result.success) {
-            console.log('[AIController] AI draw failed:', result.error);
+            window.debug('[AIController] AI draw failed:', result.error);
             window.GameFlow.handleTurnEnd();
             return;
         }
@@ -287,5 +287,5 @@
         handleEffectPost: handleEffectPost
     });
 
-    console.log('[Module 14: AI Turn Controller] Loaded ✓');
+    window.debug('[Module 14: AI Turn Controller] Loaded ✓');
 })();

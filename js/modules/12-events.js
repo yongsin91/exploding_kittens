@@ -17,7 +17,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 12: Event Handler] Loading...');
+    window.debug('[Module 12: Event Handler] Loading...');
 
     if (!window.GameState || !window.Player || !window.TurnEngine || !window.CardEffects || !window.Combo || !window.Nope || !window.UIRenderer) {
         throw new Error('[Module 12] Missing dependencies.');
@@ -64,13 +64,13 @@
     function handleCardClick(cardInstanceId) {
         let v = validateTurn();
         if (!v.valid) {
-            console.log('[Events] Cannot play card:', v.error);
+            window.debug('[Events] Cannot play card:', v.error);
             return;
         }
 
         let player = v.player;
         if (!cardInHand(player, cardInstanceId)) {
-            console.log('[Events] Card not in hand');
+            window.debug('[Events] Card not in hand');
             return;
         }
 
@@ -79,7 +79,7 @@
 
         // Don't allow playing Defuse or Exploding Kitten directly
         if (card.type === 'defuse' || card.type === 'exploding_kitten') {
-            console.log('[Events] Cannot play', card.type, 'directly');
+            window.debug('[Events] Cannot play', card.type, 'directly');
             return;
         }
 
@@ -209,7 +209,7 @@
      */
     function handleEffectUI(effectResult, playerId) {
         if (!effectResult || !effectResult.success) {
-            console.log('[Events] Effect failed:', effectResult ? effectResult.error : 'null');
+            window.debug('[Events] Effect failed:', effectResult ? effectResult.error : 'null');
             return;
         }
 
@@ -235,13 +235,13 @@
     function handleDrawClick() {
         let v = validateTurn();
         if (!v.valid) {
-            console.log('[Events] Cannot draw:', v.error);
+            window.debug('[Events] Cannot draw:', v.error);
             return;
         }
 
         let result = window.TurnEngine.drawCard(v.player.id);
         if (!result.success) {
-            console.log('[Events] Draw failed:', result.error);
+            window.debug('[Events] Draw failed:', result.error);
             return;
         }
 
@@ -274,7 +274,7 @@
     function handleEndTurnClick() {
         let v = validateTurn();
         if (!v.valid) {
-            console.log('[Events] Cannot end turn:', v.error);
+            window.debug('[Events] Cannot end turn:', v.error);
             return;
         }
 
@@ -323,7 +323,7 @@
             // Two of a kind: resolve combo with target
             let comboResult = window.Combo.resolveCombo(comboInfo, playerId, targetPlayerId, null);
             if (!comboResult.success) {
-                console.log('[Events] Combo failed:', comboResult.error);
+                window.debug('[Events] Combo failed:', comboResult.error);
             }
             window.UIRenderer.forceRender();
             return;
@@ -373,7 +373,7 @@
         let requesterId = modalData.requesterId;
 
         if (targetPlayerId === undefined || requesterId === undefined) {
-            console.log('[Events] Missing favor data');
+            window.debug('[Events] Missing favor data');
             return;
         }
 
@@ -436,7 +436,7 @@
         let playerId = modalData.playerId;
 
         if (!ekCard || playerId === undefined) {
-            console.log('[Events] Missing defuse data');
+            window.debug('[Events] Missing defuse data');
             return;
         }
 
@@ -509,7 +509,7 @@
         if (!player || !player.isAlive || !player.isHuman) return;
 
         if (selectedComboCards.length < 2) {
-            console.log('[Events] Need at least 2 cards for combo');
+            window.debug('[Events] Need at least 2 cards for combo');
             return;
         }
 
@@ -518,13 +518,13 @@
         }).filter(Boolean);
 
         if (cards.length !== selectedComboCards.length) {
-            console.log('[Events] Some cards not found in hand');
+            window.debug('[Events] Some cards not found in hand');
             return;
         }
 
         let comboInfo = window.Combo.detectCombo(cards);
         if (!comboInfo) {
-            console.log('[Events] Invalid combo');
+            window.debug('[Events] Invalid combo');
             return;
         }
 
@@ -594,7 +594,7 @@
         let targetId = modalData.targetId;
 
         if (!comboInfo || playerId === undefined || targetId === undefined) {
-            console.log('[Events] Missing three-kind data');
+            window.debug('[Events] Missing three-kind data');
             return;
         }
 
@@ -606,7 +606,7 @@
         // Resolve combo with target and named card
         let result = window.Combo.resolveCombo(comboInfo, playerId, targetId, namedCard);
         if (!result.success) {
-            console.log('[Events] Combo failed:', result.error);
+            window.debug('[Events] Combo failed:', result.error);
         }
         window.UIRenderer.forceRender();
     }
@@ -624,7 +624,7 @@
         let playerId = modalData.playerId;
 
         if (playerId === undefined) {
-            console.log('[Events] Missing discard pick data');
+            window.debug('[Events] Missing discard pick data');
             return;
         }
 
@@ -728,7 +728,7 @@
         // Keyboard shortcuts
         document.addEventListener('keydown', handleKeyboard);
 
-        console.log('[Module 12] Event listeners attached');
+        window.debug('[Module 12] Event listeners attached');
     }
 
     // ========== PUBLIC API ==========
@@ -750,5 +750,5 @@
         handlePlayAgain: handlePlayAgain
     });
 
-    console.log('[Module 12: Event Handler] Loaded ✓');
+    window.debug('[Module 12: Event Handler] Loaded ✓');
 })();

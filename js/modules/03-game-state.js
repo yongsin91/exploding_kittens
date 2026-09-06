@@ -19,7 +19,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 3: Game State Manager] Loading...');
+    window.debug('[Module 3: Game State Manager] Loading...');
 
     // Validate dependencies
     if (!window.GAME_CONFIG) {
@@ -90,14 +90,14 @@
         }
 
         observers.push(callback);
-        console.log(`[Module 3] Subscriber added (${observers.length} total)`);
+        window.debug(`[Module 3] Subscriber added (${observers.length} total)`);
 
         // Return unsubscribe function
         return function unsubscribe() {
             const index = observers.indexOf(callback);
             if (index > -1) {
                 observers.splice(index, 1);
-                console.log(`[Module 3] Subscriber removed (${observers.length} remaining)`);
+                window.debug(`[Module 3] Subscriber removed (${observers.length} remaining)`);
             }
         };
     }
@@ -278,7 +278,7 @@
      */
     function reset() {
         gameState = createInitialState();
-        console.log('[Module 3] Game state reset');
+        window.debug('[Module 3] Game state reset');
 
         // Notify observers of reset
         notifyObservers({ _reset: true });
@@ -343,5 +343,5 @@
         getStateSummary
     });
 
-    console.log('[Module 3: Game State Manager] Loaded ✓');
+    window.debug('[Module 3: Game State Manager] Loaded ✓');
 })();

@@ -21,7 +21,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 9: AI Opponent Logic] Loading...');
+    window.debug('[Module 9: AI Opponent Logic] Loading...');
 
     if (!window.CARD_TYPES || !window.GameState || !window.Player || !window.TurnEngine || !window.CardEffects || !window.Combo) {
         throw new Error('[Module 9] Missing dependencies. Modules 1, 3, 4, 5, 6, 7 required.');
@@ -610,5 +610,5 @@
         getPeekMemory: getPeekMemory
     });
 
-    console.log('[Module 9: AI Opponent Logic] Loaded ✓');
+    window.debug('[Module 9: AI Opponent Logic] Loaded ✓');
 })();
