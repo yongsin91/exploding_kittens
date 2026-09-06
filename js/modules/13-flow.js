@@ -9,10 +9,11 @@
  * - Restart/reset flow
  * - Mode-specific dispatch (AI vs hot-seat)
  * - Player death handling
- * - AI turn dispatch
+ * 
+ * AI turn execution is handled by Module 14 (AIController).
  * 
  * @module GameFlow
- * @requires All modules (1-12)
+ * @requires All modules (1-12, 14)
  * @exports {Object} window.GameFlow
  */
 
@@ -179,9 +180,9 @@
             window.HotSeat.onTurnStart(playerId);
         }
 
-        // AI turn: dispatch to AI
-        if (player.isAI && window.AI) {
-            handleAITurn(playerId);
+        // AI turn: dispatch to AI controller
+        if (player.isAI && window.AIController) {
+            window.AIController.handleAITurn(playerId);
         }
     }
 
@@ -221,245 +222,6 @@
         startTurn(nextIndex);
     }
 
-    // ========== AI TURN ==========
-
-    /**
-     * Handle AI turn with delay for natural pacing.
-     * @param {number} playerId
-     */
-    function handleAITurn(playerId) {
-        setTimeout(function() {
-            var state = window.GameState.getState();
-            if (state.currentPlayerIndex !== playerId) return; // State changed
-
-            var player = state.players[playerId];
-            if (!player || !player.isAlive) {
-                handleTurnEnd();
-                return;
-            }
-
-            var decision = window.AI.aiTakeTurn(playerId);
-
-            if (decision.action === 'play') {
-                executeAIPlay(playerId, decision);
-            } else {
-                // Draw
-                executeAIDraw(playerId);
-            }
-        }, 1500); // 1.5 second delay
-    }
-
-    /**
-     * Execute AI play decision.
-     * Supports multi-card play: after playing a card, re-evaluates if AI wants to play more.
-     * Limited to max 3 plays per turn.
-     * @private
-     */
-    function executeAIPlay(playerId, decision) {
-        var state = window.GameState.getState();
-        var player = state.players[playerId];
-        var playsThisTurn = state.cardsPlayed ? state.cardsPlayed.length : 0;
-        var MAX_PLAYS = 3;
-
-        if (decision.combo) {
-            // Execute combo
-            var cards = decision.comboCards.map(function(id) {
-                return player.hand.find(function(c) { return c.instanceId === id; });
-            }).filter(Boolean);
-
-            var comboInfo = window.Combo.detectCombo(cards);
-            if (comboInfo) {
-                window.Combo.removeComboCards(playerId, decision.comboCards);
-                // Track the play
-                window.GameState.mutate(function(s) { s.cardsPlayed.push('combo:' + comboInfo.comboType); });
-                var result = window.Combo.resolveCombo(comboInfo, playerId, decision.targetId, decision.namedCard);
-                console.log('[GameFlow] AI combo result:', result);
-
-                if (result.requiresNopeResolution && window.Nope) {
-                    window.Nope.openNopeWindow({
-                        type: 'combo',
-                        cardType: comboInfo.comboType,
-                        comboInfo: comboInfo,
-                        playerId: playerId,
-                        targetId: decision.targetId,
-                        description: player.name + ' plays ' + comboInfo.comboType,
-                        resolver: function() {
-                            window.UIRenderer.forceRender();
-                        },
-                        onComplete: function() {
-                            scheduleNextAIAction(playerId, MAX_PLAYS);
-                        }
-                    });
-                    return;
-                }
-            }
-        } else {
-            // Play single card
-            var card = player.hand.find(function(c) { return c.instanceId === decision.cardInstanceId; });
-            if (card) {
-                window.Player.removeCardFromHand(playerId, decision.cardInstanceId);
-                window.GameState.mutate(function(s) {
-                    s.discardPile.push(card);
-                    s.cardsPlayed.push(card.instanceId);
-                });
-
-                var effectResult = window.CardEffects.resolveCardEffect(decision.cardType, playerId, decision.targetId);
-                console.log('[GameFlow] AI card effect:', effectResult);
-
-                if (effectResult.requiresNopeResolution && window.Nope) {
-                    window.Nope.openNopeWindow({
-                        type: 'play-card',
-                        cardType: card.type,
-                        playerId: playerId,
-                        targetId: decision.targetId,
-                        description: player.name + ' plays ' + (card.name || card.type),
-                        resolver: function() {
-                            handleEffectUI(effectResult, playerId);
-
-                            if (card.type === 'skip' || card.type === 'attack') {
-                                if (window.GameFlow && typeof window.GameFlow.handleTurnEnd === 'function') {
-                                    window.GameFlow.handleTurnEnd();
-                                }
-                            }
-                        },
-                        onComplete: function(nopeResult) {
-                            var currentState = window.GameState.getState();
-                            // If turn ended (skip/attack resolved) or game over, don't continue
-                            if (currentState.gamePhase !== 'active') return;
-                            
-                            if (nopeResult.cancelled) {
-                                // Card was noped — AI can try to play more or draw
-                                scheduleNextAIAction(playerId, MAX_PLAYS);
-                            } else if (card.type !== 'skip' && card.type !== 'attack') {
-                                // Non-turn-ending card succeeded — AI can play more or draw
-                                scheduleNextAIAction(playerId, MAX_PLAYS);
-                            }
-                            // For skip/attack that resolved, handleTurnEnd was called by resolver
-                        }
-                    });
-                    return;
-                } else {
-                    // Not nopeable — execute effect directly
-                    handleEffectUI(effectResult, playerId);
-                    
-                    // Skip/attack end the turn
-                    if (card.type === 'skip' || card.type === 'attack') {
-                        if (window.GameFlow && typeof window.GameFlow.handleTurnEnd === 'function') {
-                            window.GameFlow.handleTurnEnd();
-                        }
-                        return;
-                    }
-                }
-            }
-        }
-
-        // After playing (non-nopeable, non-turn-ending), check if AI wants to play more
-        scheduleNextAIAction(playerId, MAX_PLAYS);
-    }
-
-    /**
-     * Schedule the next AI action: play more cards or draw.
-     * @private
-     */
-    function scheduleNextAIAction(playerId, maxPlays) {
-        setTimeout(function() {
-            var state = window.GameState.getState();
-            if (state.gamePhase !== 'active') return;
-            if (state.currentPlayerIndex !== playerId) return; // Turn changed
-            
-            var playsThisTurn = state.cardsPlayed ? state.cardsPlayed.length : 0;
-            if (playsThisTurn >= maxPlays) {
-                executeAIDraw(playerId);
-                return;
-            }
-            
-            var player = state.players[playerId];
-            if (!player || !player.isAlive) {
-                handleTurnEnd();
-                return;
-            }
-            
-            // Re-evaluate AI decision
-            var decision = window.AI.aiTakeTurn(playerId);
-            if (decision.action === 'play') {
-                executeAIPlay(playerId, decision);
-            } else {
-                executeAIDraw(playerId);
-            }
-        }, 1500); // 1.5 second delay between plays
-    }
-
-    /**
-     * Execute AI draw.
-     * @private
-     */
-    function executeAIDraw(playerId) {
-        var result = window.TurnEngine.drawCard(playerId);
-        if (!result.success) {
-            console.log('[GameFlow] AI draw failed:', result.error);
-            handleTurnEnd();
-            return;
-        }
-
-        // Check if drew Exploding Kitten
-        if (result.card && result.card.type === 'exploding_kitten') {
-            var state = window.GameState.getState();
-            var player = state.players[playerId];
-            var hasDefuse = player.hand.some(function(c) { return c.type === 'defuse'; });
-
-            if (hasDefuse) {
-                // AI defuses
-                var defuseCard = player.hand.find(function(c) { return c.type === 'defuse'; });
-                window.Player.removeCardFromHand(playerId, defuseCard.instanceId);
-                window.GameState.mutate(function(state) {
-                    state.discardPile.push(defuseCard);
-                });
-
-                var position = window.AI.aiChooseDefusePosition(state.drawPile.length);
-                window.TurnEngine.placeExplodingKitten(result.card, position);
-
-                window.GameState.logAction({
-                    type: 'DEFUSED',
-                    playerId: playerId,
-                    description: player.name + ' defused the Exploding Kitten'
-                });
-
-                // AI continues turn (can play more or end)
-                handleTurnEnd();
-            } else {
-                // AI explodes
-                window.Player.killPlayer(playerId);
-                handlePlayerDeath(playerId);
-            }
-        } else {
-            handleTurnEnd();
-        }
-    }
-
-    /**
-     * Handle effect UI for AI plays.
-     * @private
-     */
-    function handleEffectUI(effectResult, playerId) {
-        if (!effectResult.success) return;
-
-        // For Shuffle, actually shuffle the draw pile
-        if (effectResult.effectType === 'shuffle') {
-            window.GameState.mutate(function(state) {
-                state.drawPile = window.shuffle(state.drawPile);
-            });
-            window.UIRenderer.forceRender();
-        }
-
-        // For See the Future, AI remembers the cards
-        // peekedCards[0] = top of deck (next to draw), in draw order
-        if (effectResult.effectType === 'see_future' && window.AI) {
-            var state = window.GameState.getState();
-            var peekedCards = state.drawPile.slice(-3).reverse();
-            window.AI.rememberPeekedCards(playerId, peekedCards);
-        }
-    }
-
     // ========== WIN CONDITION ==========
 
     /**
@@ -491,7 +253,6 @@
             description: winner ? winner.name + ' wins!' : 'Game over — no winner'
         });
 
-        // UIRenderer will show game over screen
         if (window.UIRenderer) {
             window.UIRenderer.forceRender();
         }
@@ -515,17 +276,14 @@
             description: player.name + ' exploded and is eliminated!'
         });
 
-        // Clear AI peek memory
         if (window.AI) {
             window.AI.clearPeekMemory(playerId);
         }
 
-        // Check win condition
         if (checkWinCondition()) {
             return;
         }
 
-        // If current player died, advance turn
         if (state.currentPlayerIndex === playerId) {
             handleTurnEnd();
         }
@@ -539,7 +297,6 @@
     function restartGame() {
         console.log('[GameFlow] Restarting game...');
 
-        // Reset all modules
         window.GameState.reset();
         if (window.HotSeat) {
             window.HotSeat.reset();
@@ -548,7 +305,6 @@
             window.Nope.forceCloseNopeWindow();
         }
 
-        // Return to setup screen
         if (window.GameApp) {
             window.GameApp.resetToSetupScreen();
         }
@@ -565,9 +321,12 @@
         if (!effectResult || !effectResult.success) return;
 
         if (effectResult.requiresNopeResolution) {
-            // Open nope window with resolver
             var resolver = function() {
-                handleEffectUI(effectResult, playerId);
+                if (window.AIController) {
+                    window.AIController.handleEffectPost(effectResult, playerId);
+                } else {
+                    window.UIRenderer.forceRender();
+                }
             };
 
             window.Nope.openNopeWindow({
@@ -578,7 +337,11 @@
                 resolver: resolver
             });
         } else {
-            handleEffectUI(effectResult, playerId);
+            if (window.AIController) {
+                window.AIController.handleEffectPost(effectResult, playerId);
+            } else {
+                window.UIRenderer.forceRender();
+            }
         }
     }
 
@@ -600,7 +363,6 @@
         initGame: initGame,
         startTurn: startTurn,
         handleTurnEnd: handleTurnEnd,
-        handleAITurn: handleAITurn,
         handlePlayerDeath: handlePlayerDeath,
         checkWinCondition: checkWinCondition,
         endGame: endGame,
