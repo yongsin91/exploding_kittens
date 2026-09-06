@@ -18,7 +18,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 7: Combo Resolver] Loading...');
+    window.debug('[Module 7: Combo Resolver] Loading...');
 
     // Validate dependencies
     if (!window.CARD_TYPES || !window.COMBO_TYPES || !window.GameState || !window.Player) {
@@ -519,5 +519,5 @@
         canComboBeNoped
     });
 
-    console.log('[Module 7: Combo Resolver] Loaded ✓');
+    window.debug('[Module 7: Combo Resolver] Loaded ✓');
 })();

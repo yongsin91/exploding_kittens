@@ -26,7 +26,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 8: Nope / Counter-Play System] Loading...');
+    window.debug('[Module 8: Nope / Counter-Play System] Loading...');
 
     // Validate dependencies
     if (!window.GAME_CONFIG || !window.GameState || !window.Player || !window.TurnEngine) {
@@ -127,7 +127,7 @@
                 }
             });
 
-            console.log(`[Module 8] Nope window opened for: ${pendingAction.description}`);
+            window.debug(`[Module 8] Nope window opened for: ${pendingAction.description}`);
 
             scheduleAINopeChecks();
 
@@ -137,7 +137,7 @@
             }
             windowExpiryTimeout = setTimeout(function() {
                 if (pendingAction) {
-                    console.log('[Module 8] Nope window expired — auto-closing');
+                    window.debug('[Module 8] Nope window expired — auto-closing');
                     closeNopeWindow();
                 }
             }, window.GAME_CONFIG.NOPE_WINDOW_DURATION_MS || 5000);
@@ -254,7 +254,7 @@
                 }
             });
 
-            console.log(`[Module 8] ${player.name} played Nope! Stack: ${nopeStack.length} (${isActionNoped() ? 'CANCELLED' : 'PROCEEDS'})`);
+            window.debug(`[Module 8] ${player.name} played Nope! Stack: ${nopeStack.length} (${isActionNoped() ? 'CANCELLED' : 'PROCEEDS'})`);
 
             // Reset expiry timeout when someone nopes (new window for counter-nope)
             if (windowExpiryTimeout) {
@@ -262,7 +262,7 @@
             }
             windowExpiryTimeout = setTimeout(function() {
                 if (pendingAction) {
-                    console.log('[Module 8] Nope window expired after nope — auto-closing');
+                    window.debug('[Module 8] Nope window expired after nope — auto-closing');
                     closeNopeWindow();
                 }
             }, window.GAME_CONFIG.NOPE_WINDOW_DURATION_MS || 5000);
@@ -333,7 +333,7 @@
             let result;
 
             if (noped) {
-                console.log(`[Module 8] Action CANCELLED by ${stack.length} nope(s): ${action.description}`);
+                window.debug(`[Module 8] Action CANCELLED by ${stack.length} nope(s): ${action.description}`);
 
                 window.GameState.logAction({
                     type: 'NOPE_RESOLVED',
@@ -349,7 +349,7 @@
                     action: action.description
                 };
             } else {
-                console.log(`[Module 8] Action PROCEEDS (${stack.length} nope(s)): ${action.description}`);
+                window.debug(`[Module 8] Action PROCEEDS (${stack.length} nope(s)): ${action.description}`);
 
                 window.GameState.logAction({
                     type: 'NOPE_RESOLVED',
@@ -584,7 +584,7 @@
                 });
 
                 if (shouldNope) {
-                    console.log(`[Module 8] AI ${player.name} decided to NOPE`);
+                    window.debug(`[Module 8] AI ${player.name} decided to NOPE`);
                     playNope(player.id);
                     scheduleAINopeChecks();
                     return;
@@ -624,7 +624,7 @@
         if (wantNope) {
             return playNope(playerId);
         } else {
-            console.log(`[Module 8] Player ${playerId} declined to nope`);
+            window.debug(`[Module 8] Player ${playerId} declined to nope`);
 
             const eligible = getEligibleNopePlayers().filter(p => p.id !== playerId);
 
@@ -661,5 +661,5 @@
         handleNopeResponse
     });
 
-    console.log('[Module 8: Nope / Counter-Play System] Loaded ✓');
+    window.debug('[Module 8: Nope / Counter-Play System] Loaded ✓');
 })();

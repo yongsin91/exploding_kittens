@@ -17,7 +17,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 4: Player Manager] Loading...');
+    window.debug('[Module 4: Player Manager] Loading...');
 
     // Validate dependencies
     if (!window.GAME_CONFIG) {
@@ -492,5 +492,5 @@
         getPlayerCountSummary
     });
 
-    console.log('[Module 4: Player Manager] Loaded ✓');
+    window.debug('[Module 4: Player Manager] Loaded ✓');
 })();

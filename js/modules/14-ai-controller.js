@@ -20,7 +20,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 14: AI Turn Controller] Loading...');
+    window.debug('[Module 14: AI Turn Controller] Loading...');
 
     if (!window.GameState || !window.Player || !window.TurnEngine || !window.CardEffects || !window.Combo || !window.Nope || !window.AI) {
         throw new Error('[Module 14] Missing dependencies.');
@@ -28,8 +28,8 @@
 
     // ========== CONSTANTS ==========
 
-    var MAX_PLAYS_PER_TURN = 3;
-    var AI_TURN_DELAY_MS = 1500;
+    let MAX_PLAYS_PER_TURN = 3;
+    let AI_TURN_DELAY_MS = 1500;
 
     // ========== AI TURN DISPATCH ==========
 
@@ -39,17 +39,17 @@
      */
     function handleAITurn(playerId) {
         setTimeout(function() {
-            var state = window.GameState.getState();
+            let state = window.GameState.getState();
             if (state.currentPlayerIndex !== playerId) return;
             if (state.gamePhase !== 'active') return;
 
-            var player = state.players[playerId];
+            let player = state.players[playerId];
             if (!player || !player.isAlive) {
                 window.GameFlow.handleTurnEnd();
                 return;
             }
 
-            var decision = window.AI.aiTakeTurn(playerId);
+            let decision = window.AI.aiTakeTurn(playerId);
 
             if (decision.action === 'play') {
                 executeAIPlay(playerId, decision);
@@ -68,8 +68,8 @@
      * @param {Object} decision - AI decision from getAIDecision
      */
     function executeAIPlay(playerId, decision) {
-        var state = window.GameState.getState();
-        var player = state.players[playerId];
+        let state = window.GameState.getState();
+        let player = state.players[playerId];
 
         if (decision.combo) {
             executeAICombo(playerId, decision, player);
@@ -86,11 +86,11 @@
      * @private
      */
     function executeAICombo(playerId, decision, player) {
-        var cards = decision.comboCards.map(function(id) {
+        let cards = decision.comboCards.map(function(id) {
             return player.hand.find(function(c) { return c.instanceId === id; });
         }).filter(Boolean);
 
-        var comboInfo = window.Combo.detectCombo(cards);
+        let comboInfo = window.Combo.detectCombo(cards);
         if (!comboInfo) return;
 
         window.Combo.removeComboCards(playerId, decision.comboCards);
@@ -98,8 +98,8 @@
             s.cardsPlayed.push('combo:' + comboInfo.comboType);
         });
 
-        var result = window.Combo.resolveCombo(comboInfo, playerId, decision.targetId, decision.namedCard);
-        console.log('[AIController] AI combo result:', result);
+        let result = window.Combo.resolveCombo(comboInfo, playerId, decision.targetId, decision.namedCard);
+        window.debug('[AIController] AI combo result:', result);
 
         if (result.requiresNopeResolution && window.Nope) {
             window.Nope.openNopeWindow({
@@ -124,7 +124,7 @@
      * @private
      */
     function executeAISingleCard(playerId, decision, player) {
-        var card = player.hand.find(function(c) { return c.instanceId === decision.cardInstanceId; });
+        let card = player.hand.find(function(c) { return c.instanceId === decision.cardInstanceId; });
         if (!card) return;
 
         window.Player.removeCardFromHand(playerId, decision.cardInstanceId);
@@ -133,8 +133,8 @@
             s.cardsPlayed.push(card.instanceId);
         });
 
-        var effectResult = window.CardEffects.resolveCardEffect(decision.cardType, playerId, decision.targetId);
-        console.log('[AIController] AI card effect:', effectResult);
+        let effectResult = window.CardEffects.resolveCardEffect(decision.cardType, playerId, decision.targetId);
+        window.debug('[AIController] AI card effect:', effectResult);
 
         if (effectResult.requiresNopeResolution && window.Nope) {
             window.Nope.openNopeWindow({
@@ -151,7 +151,7 @@
                     }
                 },
                 onComplete: function(nopeResult) {
-                    var currentState = window.GameState.getState();
+                    let currentState = window.GameState.getState();
                     if (currentState.gamePhase !== 'active') return;
 
                     if (nopeResult.cancelled) {
@@ -179,23 +179,23 @@
      */
     function scheduleNextAIAction(playerId) {
         setTimeout(function() {
-            var state = window.GameState.getState();
+            let state = window.GameState.getState();
             if (state.gamePhase !== 'active') return;
             if (state.currentPlayerIndex !== playerId) return;
 
-            var playsThisTurn = state.cardsPlayed ? state.cardsPlayed.length : 0;
+            let playsThisTurn = state.cardsPlayed ? state.cardsPlayed.length : 0;
             if (playsThisTurn >= MAX_PLAYS_PER_TURN) {
                 executeAIDraw(playerId);
                 return;
             }
 
-            var player = state.players[playerId];
+            let player = state.players[playerId];
             if (!player || !player.isAlive) {
                 window.GameFlow.handleTurnEnd();
                 return;
             }
 
-            var decision = window.AI.aiTakeTurn(playerId);
+            let decision = window.AI.aiTakeTurn(playerId);
             if (decision.action === 'play') {
                 executeAIPlay(playerId, decision);
             } else {
@@ -211,26 +211,26 @@
      * @param {number} playerId - AI player ID
      */
     function executeAIDraw(playerId) {
-        var result = window.TurnEngine.drawCard(playerId);
+        let result = window.TurnEngine.drawCard(playerId);
         if (!result.success) {
-            console.log('[AIController] AI draw failed:', result.error);
+            window.debug('[AIController] AI draw failed:', result.error);
             window.GameFlow.handleTurnEnd();
             return;
         }
 
         if (result.card && result.card.type === 'exploding_kitten') {
-            var state = window.GameState.getState();
-            var player = state.players[playerId];
-            var hasDefuse = player.hand.some(function(c) { return c.type === 'defuse'; });
+            let state = window.GameState.getState();
+            let player = state.players[playerId];
+            let hasDefuse = player.hand.some(function(c) { return c.type === 'defuse'; });
 
             if (hasDefuse) {
-                var defuseCard = player.hand.find(function(c) { return c.type === 'defuse'; });
+                let defuseCard = player.hand.find(function(c) { return c.type === 'defuse'; });
                 window.Player.removeCardFromHand(playerId, defuseCard.instanceId);
                 window.GameState.mutate(function(s) {
                     s.discardPile.push(defuseCard);
                 });
 
-                var position = window.AI.aiChooseDefusePosition(state.drawPile.length);
+                let position = window.AI.aiChooseDefusePosition(state.drawPile.length);
                 window.TurnEngine.placeExplodingKitten(result.card, position);
 
                 window.GameState.logAction({
@@ -271,8 +271,8 @@
         }
 
         if (effectResult.effectType === 'see_future' && window.AI) {
-            var state = window.GameState.getState();
-            var peekedCards = state.drawPile.slice(-3).reverse();
+            let state = window.GameState.getState();
+            let peekedCards = state.drawPile.slice(-3).reverse();
             window.AI.rememberPeekedCards(playerId, peekedCards);
         }
     }
@@ -287,5 +287,5 @@
         handleEffectPost: handleEffectPost
     });
 
-    console.log('[Module 14: AI Turn Controller] Loaded ✓');
+    window.debug('[Module 14: AI Turn Controller] Loaded ✓');
 })();

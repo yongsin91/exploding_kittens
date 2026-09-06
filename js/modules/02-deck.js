@@ -26,7 +26,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 2: Deck & Shuffle] Loading...');
+    window.debug('[Module 2: Deck & Shuffle] Loading...');
 
     // ===== ERROR HANDLING =====
 
@@ -247,12 +247,12 @@
             );
         }
 
-        console.log(`[Module 2] Creating 56-card deck for ${playerCount} players...`);
+        window.debug(`[Module 2] Creating 56-card deck for ${playerCount} players...`);
 
         try {
             // Generate all 56 card instances
             let deck = generateCardInstances();
-            console.log(`[Module 2] Generated ${deck.length} card instances`);
+            window.debug(`[Module 2] Generated ${deck.length} card instances`);
 
             if (deck.length !== 56) {
                 throw new Error(`Expected 56 cards, generated ${deck.length}`);
@@ -260,7 +260,7 @@
 
             // Shuffle the complete deck
             deck = shuffle(deck);
-            console.log(`[Module 2] Shuffled 56-card deck`);
+            window.debug(`[Module 2] Shuffled 56-card deck`);
 
             // Validate composition
             const summary = getDeckSummary(deck);
@@ -288,7 +288,7 @@
                 }
             });
 
-            console.log(`[Module 2] ✓ Deck created successfully (56 cards, ready for gameplay)`);
+            window.debug(`[Module 2] ✓ Deck created successfully (56 cards, ready for gameplay)`);
 
             return deck;
         } catch (error) {
@@ -330,7 +330,7 @@
         window.removeExplodingKittens = removeExplodingKittens;
         window.removeDefuses = removeDefuses;
 
-        console.log('[Module 2: Deck & Shuffle] Loaded');
+        window.debug('[Module 2: Deck & Shuffle] Loaded');
     } catch (error) {
         console.error('[Module 2: Deck & Shuffle] Load failed:', error);
     }

@@ -17,7 +17,7 @@
 (function() {
     'use strict';
 
-    console.log('[Module 11: Hot-Seat Mode Controller] Loading...');
+    window.debug('[Module 11: Hot-Seat Mode Controller] Loading...');
 
     if (!window.GameState || !window.UIRenderer) {
         throw new Error('[Module 11] Missing dependencies. Modules 3, 10 required.');
@@ -25,10 +25,10 @@
 
     // ========== STATE ==========
 
-    var isHotSeat = false;
-    var passScreenActive = false;
-    var pendingNopePlayerId = null;
-    var nopePlayerQueue = [];
+    let isHotSeat = false;
+    let passScreenActive = false;
+    let pendingNopePlayerId = null;
+    let nopePlayerQueue = [];
 
     // ========== PASS SCREEN ==========
 
@@ -40,31 +40,31 @@
         passScreenActive = true;
 
         // Create or show pass screen overlay
-        var overlay = document.getElementById('pass-screen-overlay');
+        let overlay = document.getElementById('pass-screen-overlay');
         if (!overlay) {
             overlay = document.createElement('div');
             overlay.id = 'pass-screen-overlay';
             overlay.className = 'pass-screen-overlay';
 
-            var content = document.createElement('div');
+            let content = document.createElement('div');
             content.className = 'pass-screen-content';
 
-            var icon = document.createElement('div');
+            let icon = document.createElement('div');
             icon.className = 'pass-screen-icon';
             icon.textContent = '📱';
             content.appendChild(icon);
 
-            var title = document.createElement('h2');
+            let title = document.createElement('h2');
             title.id = 'pass-screen-title';
             title.className = 'pass-screen-title';
             content.appendChild(title);
 
-            var subtitle = document.createElement('p');
+            let subtitle = document.createElement('p');
             subtitle.className = 'pass-screen-subtitle';
             subtitle.textContent = 'Make sure no one else can see the screen.';
             content.appendChild(subtitle);
 
-            var btn = document.createElement('button');
+            let btn = document.createElement('button');
             btn.id = 'pass-screen-btn';
             btn.className = 'btn btn--primary btn--large';
             btn.textContent = "I'm Ready";
@@ -77,7 +77,7 @@
             document.body.appendChild(overlay);
         }
 
-        var titleEl = document.getElementById('pass-screen-title');
+        let titleEl = document.getElementById('pass-screen-title');
         if (titleEl) {
             titleEl.textContent = 'Pass device to ' + playerName;
         }
@@ -91,7 +91,7 @@
      */
     function hidePassScreen() {
         passScreenActive = false;
-        var overlay = document.getElementById('pass-screen-overlay');
+        let overlay = document.getElementById('pass-screen-overlay');
         if (overlay) {
             overlay.classList.remove('pass-screen--active');
             overlay.style.display = 'none';
@@ -119,8 +119,8 @@
      * @param {number} targetPlayerId - Player who must give a card
      */
     function showFavorGiveScreen(targetPlayerId) {
-        var state = window.GameState.getState();
-        var targetPlayer = state.players[targetPlayerId];
+        let state = window.GameState.getState();
+        let targetPlayer = state.players[targetPlayerId];
         if (!targetPlayer) return;
 
         // In hot-seat: show pass screen first, then favor give modal
@@ -139,8 +139,8 @@
      * @param {number} excludePlayerId - Player who initiated the action (cannot nope)
      */
     function showNopePrompt(excludePlayerId) {
-        var state = window.GameState.getState();
-        var alivePlayers = (state.players || []).filter(function(p) {
+        let state = window.GameState.getState();
+        let alivePlayers = (state.players || []).filter(function(p) {
             return p.isAlive && p.id !== excludePlayerId;
         });
 
@@ -166,9 +166,9 @@
             return;
         }
 
-        var nextPlayerId = nopePlayerQueue.shift();
-        var state = window.GameState.getState();
-        var player = state.players[nextPlayerId];
+        let nextPlayerId = nopePlayerQueue.shift();
+        let state = window.GameState.getState();
+        let player = state.players[nextPlayerId];
 
         if (!player || !player.isAlive) {
             processNextNopePlayer();
@@ -202,7 +202,7 @@
      * @param {boolean} wantNope - Whether player wants to nope
      */
     function handleNopeResponse(wantNope) {
-        var playerId = pendingNopePlayerId;
+        let playerId = pendingNopePlayerId;
 
         if (wantNope && playerId !== null) {
             if (window.Nope && typeof window.Nope.playNope === 'function') {
@@ -210,9 +210,9 @@
             }
             // After a nope, other players can counter-nope
             // Re-build queue with remaining alive players
-            var state = window.GameState.getState();
-            var action = window.Nope ? window.Nope.getPendingAction() : null;
-            var originalPlayerId = action ? action.playerId : null;
+            let state = window.GameState.getState();
+            let action = window.Nope ? window.Nope.getPendingAction() : null;
+            let originalPlayerId = action ? action.playerId : null;
             nopePlayerQueue = (state.players || []).filter(function(p) {
                 return p.isAlive && p.id !== playerId && p.id !== originalPlayerId;
             }).map(function(p) { return p.id; });
@@ -229,12 +229,12 @@
      * Called after every state change in hot-seat mode.
      */
     function hideHandForNonCurrentPlayers() {
-        var state = window.GameState.getState();
+        let state = window.GameState.getState();
         if (!state.players || state.players.length === 0) return;
 
         // In hot-seat, opponents area should show card backs only
         // (UIRenderer already does this — this is a safety check)
-        var hand = document.getElementById('player-hand');
+        let hand = document.getElementById('player-hand');
         if (hand && passScreenActive) {
             // Hide hand completely during pass screen
             hand.style.visibility = 'hidden';
@@ -269,8 +269,8 @@
     function onTurnStart(playerId) {
         if (!isHotSeat) return;
 
-        var state = window.GameState.getState();
-        var player = state.players[playerId];
+        let state = window.GameState.getState();
+        let player = state.players[playerId];
         if (!player) return;
 
         // Don't show pass screen for dead players
@@ -318,8 +318,8 @@
     function onPeekStart(playerId) {
         if (!isHotSeat) return;
 
-        var state = window.GameState.getState();
-        var player = state.players[playerId];
+        let state = window.GameState.getState();
+        let player = state.players[playerId];
         if (!player) return;
 
         // If it's not the current viewer's turn, show pass screen first
@@ -374,5 +374,5 @@
         reset: reset
     });
 
-    console.log('[Module 11: Hot-Seat Mode Controller] Loaded ✓');
+    window.debug('[Module 11: Hot-Seat Mode Controller] Loaded ✓');
 })();
