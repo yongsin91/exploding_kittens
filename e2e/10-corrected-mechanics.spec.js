@@ -391,4 +391,86 @@ test.describe('Corrected Mechanics', () => {
       await expect(gameScreen).toHaveClass(/screen--active/, { timeout: 5000 });
     }
   });
+
+  // 10. Nope modal stays open until user clicks — no auto-close timeout
+  test('nope modal does not auto-close while human is eligible', async ({ page }) => {
+    await setupControlledGame(page, {
+      handCards: ['nope', 'defuse', 'skip', 'attack', 'favor'],
+      deckCards: ['skip', 'attack', 'favor', 'shuffle', 'see_the_future']
+    });
+
+    // Give AI a nopeable card
+    await page.evaluate(() => {
+      window.GameState.mutate(function(state) {
+        if (state.players[1]) {
+          state.players[1].hand = [
+            { instanceId: 'ai-card-0', type: 'attack', emoji: '⚔️', name: 'Attack', cornerIcon: null },
+            { instanceId: 'ai-card-1', type: 'defuse', emoji: '🔧', name: 'Defuse', cornerIcon: null }
+          ];
+        }
+      });
+    });
+
+    // End human turn to let AI play
+    await page.locator('#draw-btn').click();
+
+    // Wait for nope modal to appear
+    const nopeModal = page.locator('#nope-modal');
+    let nopeAppeared = false;
+    for (let i = 0; i < 20; i++) {
+      await page.waitForTimeout(300);
+      nopeAppeared = await nopeModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
+      if (nopeAppeared) break;
+    }
+
+    if (nopeAppeared) {
+      // Wait 8 seconds (longer than the old 5s timeout)
+      await page.waitForTimeout(8000);
+
+      // Modal should STILL be active — no auto-close
+      const stillActive = await nopeModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
+      expect(stillActive).toBe(true);
+
+      // Now click 'Let It Happen' to close it
+      await page.locator('#nope-no-btn').click();
+      await page.waitForTimeout(500);
+
+      const closedAfter = await nopeModal.evaluate(el => el.classList.contains('modal--active')).catch(() => false);
+      expect(closedAfter).toBe(false);
+    } else {
+      // AI didn't play a nopeable card — skip but verify game works
+      const gameScreen = page.locator('#game-screen');
+      await expect(gameScreen).toHaveClass(/screen--active/, { timeout: 5000 });
+    }
+  });
+
+  // 11. Drawn card info is not revealed in action log for non-EK draws
+  test('action log does not reveal drawn card type', async ({ page }) => {
+    await setupControlledGame(page, {
+      handCards: ['defuse', 'nope', 'skip', 'attack', 'favor'],
+      deckCards: ['skip', 'attack', 'favor', 'shuffle', 'see_the_future', 'tacocat']
+    });
+
+    // Draw a card (non-EK)
+    await page.locator('#draw-btn').click();
+    await page.waitForTimeout(500);
+
+    // Check the action log — the last CARD_DRAWN entry should NOT contain card emoji/name
+    const lastDrawLog = await page.evaluate(() => {
+      const state = window.GameState.getState();
+      const drawEntries = state.actionLog.filter(e => e.type === 'CARD_DRAWN');
+      return drawEntries.length > 0 ? drawEntries[drawEntries.length - 1] : null;
+    });
+
+    if (lastDrawLog) {
+      // Description should be 'X drew a card' — NOT 'X drew emoji name'
+      expect(lastDrawLog.description).toContain('drew a card');
+      // Should NOT contain card emojis or specific card names
+      expect(lastDrawLog.description).not.toMatch(/[🌀🔧🚫⚔️⏭️🎁🔀🔮🌮🍉🥔🧔🌈]/);
+      expect(lastDrawLog.description).not.toMatch(/Defuse|Nope|Attack|Skip|Favor|Shuffle|See the Future|Tacocat|Cattermelon|Hairy Potato|Beard Cat|Rainbow/);
+      // Should NOT have cardType or cardEmoji for non-EK draws
+      expect(lastDrawLog.cardType).toBeUndefined();
+      expect(lastDrawLog.cardEmoji).toBeUndefined();
+    }
+  });
 });
