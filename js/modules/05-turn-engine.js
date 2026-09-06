@@ -207,15 +207,25 @@
                 return null;
             }
 
-            // Log action
-            window.GameState.logAction({
-                type: 'CARD_DRAWN',
-                playerId,
-                playerName: player.name,
-                cardType: drawnCard.type,
-                cardEmoji: drawnCard.emoji,
-                description: `${player.name} drew ${drawnCard.emoji} ${drawnCard.name}`
-            });
+            // Log action — hide card details for non-EK draws (private information)
+            // EK draws are public knowledge (player either defuses or explodes)
+            if (drawnCard.type === 'exploding_kitten') {
+                window.GameState.logAction({
+                    type: 'CARD_DRAWN',
+                    playerId,
+                    playerName: player.name,
+                    cardType: drawnCard.type,
+                    cardEmoji: drawnCard.emoji,
+                    description: `${player.name} drew an Exploding Kitten!`
+                });
+            } else {
+                window.GameState.logAction({
+                    type: 'CARD_DRAWN',
+                    playerId,
+                    playerName: player.name,
+                    description: `${player.name} drew a card`
+                });
+            }
 
             // Handle Exploding Kitten — do NOT add to hand
             if (drawnCard.type === 'exploding_kitten') {
@@ -335,12 +345,10 @@
      * @returns {boolean} Success status
      */
     function openNopeWindow(card) {
-        const expiresAt = new Date(Date.now() + window.GAME_CONFIG.NOPE_WINDOW_DURATION_MS).toISOString();
-
         return window.GameState.setState({
             nopeWindowActive: true,
             nopeWindowCard: card,
-            nopeWindowExpires: expiresAt
+            nopeWindowExpires: null  // No expiration — stays open until user responds
         });
     }
 
@@ -367,15 +375,7 @@
             return false;
         }
 
-        // Check expiration
-        if (state.nopeWindowExpires) {
-            const expiresTime = new Date(state.nopeWindowExpires).getTime();
-            if (Date.now() > expiresTime) {
-                closeNopeWindow();
-                return false;
-            }
-        }
-
+        // No expiration check — nope modal stays open until user responds
         return true;
     }
 
