@@ -2,28 +2,7 @@
 // Tests card playing, drawing, modals, and game interactions
 
 const { test, expect } = require('@playwright/test');
-const { gotoGame, startGame } = require('./helpers');
-
-/**
- * Wait for the human player's turn (draw button enabled).
- * In AI mode, the AI may go first and we need to wait.
- */
-async function waitForHumanTurn(page, timeout = 20000) {
-  await expect(page.locator('#draw-btn')).toBeEnabled({ timeout });
-}
-
-/**
- * Get the current player's hand card types.
- */
-async function getHandCardTypes(page) {
-  const cards = page.locator('#player-hand .card');
-  const count = await cards.count();
-  const types = [];
-  for (let i = 0; i < count; i++) {
-    types.push(await cards.nth(i).getAttribute('data-card-type'));
-  }
-  return types;
-}
+const { gotoGame, startGame, waitForHumanTurn, getHandCardTypes } = require('./helpers');
 
 test.describe('Gameplay Interactions', () => {
 

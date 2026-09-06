@@ -372,6 +372,38 @@
     }
 
     /**
+     * Get the next alive player after a specific player.
+     * Handles elimination by skipping dead players.
+     * 
+     * @param {number} afterPlayerId - Find next alive player after this ID
+     * @returns {Object|null} Next alive player object or null
+     */
+    function getNextAlivePlayerAfter(afterPlayerId) {
+        try {
+            const state = window.GameState.getState();
+            const playerCount = state.players.length;
+
+            if (playerCount === 0) return null;
+
+            let nextIndex = (afterPlayerId + 1) % playerCount;
+            let checked = 0;
+
+            while (checked < playerCount) {
+                if (state.players[nextIndex] && state.players[nextIndex].isAlive) {
+                    return state.players[nextIndex];
+                }
+                nextIndex = (nextIndex + 1) % playerCount;
+                checked++;
+            }
+
+            return null;
+        } catch (error) {
+            console.error('[Module 4] getNextAlivePlayerAfter error:', error);
+            return null;
+        }
+    }
+
+    /**
      * Get array of all alive players
      * @returns {Array} Array of alive player objects
      */
@@ -453,6 +485,7 @@
         killPlayer,
         getActivePlayer,
         getNextAlivePlayerIndex,
+        getNextAlivePlayerAfter,
         getAlivePlayers,
         getOtherAlivePlayers,
         getPlayerById,

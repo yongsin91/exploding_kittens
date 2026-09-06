@@ -2,11 +2,7 @@
 // Tests AI turn dispatch, timing, card playing, drawing, and turn passing
 
 const { test, expect } = require('@playwright/test');
-const { gotoGame, startGame } = require('./helpers');
-
-async function waitForHumanTurn(page, timeout = 20000) {
-  await expect(page.locator('#draw-btn')).toBeEnabled({ timeout });
-}
+const { gotoGame, startGame, waitForHumanTurn } = require('./helpers');
 
 test.describe('AI Turn Flow', () => {
 
