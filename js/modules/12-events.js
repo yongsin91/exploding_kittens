@@ -406,13 +406,26 @@
         if (wantNope) {
             if (playerId === undefined) {
                 // Use pending nope player from HotSeat if available
-                if (window.HotSeat && typeof window.HotSeat.getPendingNopePlayerId === 'function') {
+                if (window.HotSeat && window.HotSeat.isHotSeatMode() && typeof window.HotSeat.getPendingNopePlayerId === 'function') {
                     playerId = window.HotSeat.getPendingNopePlayerId();
+                } else {
+                    // AI mode — find the human player who can nope
+                    let eligiblePlayers = window.Nope.getEligibleNopePlayers();
+                    let humanEligible = eligiblePlayers.find(function(p) {
+                        let player = window.Player.getPlayerById(p.id);
+                        return player && player.isHuman;
+                    });
+                    if (humanEligible) {
+                        playerId = humanEligible.id;
+                    }
                 }
             }
 
             if (playerId !== null && playerId !== undefined) {
                 window.Nope.playNope(playerId);
+            } else {
+                // No eligible human player — close the nope window
+                window.Nope.closeNopeWindow();
             }
         } else {
             // Player declines — close nope window or move to next player
