@@ -2,21 +2,7 @@
 // Tests the Nope modal, Nope button, Let It Happen button, and nope resolution
 
 const { test, expect } = require('@playwright/test');
-const { gotoGame, startGame } = require('./helpers');
-
-async function waitForHumanTurn(page, timeout = 20000) {
-  await expect(page.locator('#draw-btn')).toBeEnabled({ timeout });
-}
-
-async function getHandCardTypes(page) {
-  const cards = page.locator('#player-hand .card');
-  const count = await cards.count();
-  const types = [];
-  for (let i = 0; i < count; i++) {
-    types.push(await cards.nth(i).getAttribute('data-card-type'));
-  }
-  return types;
-}
+const { gotoGame, startGame, waitForHumanTurn, getHandCardTypes } = require('./helpers');
 
 test.describe('Nope Mechanic', () => {
 

@@ -451,7 +451,6 @@
 
     window.CardEffects = Object.freeze({
         resolveCardEffect,
-        canBeNoped,
         getEffectDescription
     });
 

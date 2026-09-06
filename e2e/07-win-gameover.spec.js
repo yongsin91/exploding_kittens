@@ -2,11 +2,7 @@
 // Tests game over screen, winner display, and play again restart
 
 const { test, expect } = require('@playwright/test');
-const { gotoGame, startGame } = require('./helpers');
-
-async function waitForHumanTurn(page, timeout = 20000) {
-  await expect(page.locator('#draw-btn')).toBeEnabled({ timeout });
-}
+const { gotoGame, startGame, waitForHumanTurn } = require('./helpers');
 
 test.describe('Win / Game Over', () => {
 

@@ -208,14 +208,18 @@
      * @private
      */
     function handleEffectUI(effectResult, playerId) {
-        if (!effectResult.success) {
-            console.log('[Events] Effect failed:', effectResult.error);
+        if (!effectResult || !effectResult.success) {
+            console.log('[Events] Effect failed:', effectResult ? effectResult.error : 'null');
             return;
+        }
+
+        // Use shared post-effect handler for shuffle/see_future
+        if (window.AIController) {
+            window.AIController.handleEffectPost(effectResult, playerId);
         }
 
         // If effect sets a modal, it will be handled by UIRenderer
         if (effectResult.requiresUI) {
-            // Modal is already set in gameState by CardEffects
             return;
         }
 
